@@ -61,6 +61,8 @@ base["answered_ts"] = base["latest_review_answered_ts"]
 base["created_ts"] = base["latest_review_created_ts"]
 base["stage_ok"] = base["valid"]
 base["peak"] = base["purchase_month"].isin(PEAK)
+_monthly = base.groupby("purchase_month")["late"].agg(["size", "mean"])
+assert set(_monthly[(_monthly["size"] >= 100) & ((100 * _monthly["mean"]).round(2) >= 10)].index) == PEAK, "PEAK differs from the written peak-month rule"
 named = base.loc[base["primary_category"].ne("unknown"), "primary_category"].value_counts()
 CATEGORY_LEVELS = sorted(named[named.ge(1000)].index)
 positions = pd.read_csv(OUT / "zip_positions.csv", dtype={"zip_prefix": str}).set_index("zip_prefix")
@@ -298,13 +300,10 @@ def fit_spec(tag, frame, outcome, exposure, levels, reference, categorical, nume
         worlds[level] = model.counterfactual({c: (1.0 if v == level else 0.0) for v, c in columns.items()})
     if cov_type == "cluster":
         beta, cov = model.wald.params.to_numpy(), model.wald.cov_params().to_numpy()
-        pvals = model.wald
     else:
         robust = sm.GLM(model.y, model.design, family=sm.families.Binomial()).fit(cov_type=cov_type)
         beta, cov = robust.params.to_numpy(), robust.cov_params().to_numpy()
-        pvals = robust
     out = {}
-    names = list(model.design.columns)
     for name, a, b in contrasts:
         est, se, ci = delta_rd(beta, cov, worlds[a], worlds[b])
         out[name] = {"estimate": est, "se": se, "ci": ci, "p": float(2 * ss.norm.sf(abs(est / se))) if se > 0 else None}
@@ -395,7 +394,6 @@ def run_spec(hypothesis, frame, scenario_id, plan_id, group, label, cov_type="cl
 
 def spec_a7_run(frame, scenario_id, plan_id, group, label, cov_type="cluster", note="", lpm=False):
     s = with_distance(frame)
-    counts = s.loc[s["primary_category"].ne("unknown"), "primary_category"]
     levels_all = base.loc[base["primary_category"].ne("unknown"), "primary_category"].value_counts() if frame["primary_category"].equals(base.reindex(frame.index)["primary_category"]) else frame.loc[frame["primary_category"].ne("unknown"), "primary_category"].value_counts()
     levels = sorted(levels_all[levels_all.ge(1000)].index)
     s = s[s["primary_category"].isin(levels)].copy()

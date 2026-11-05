@@ -13,13 +13,14 @@ import time
 import numpy as np
 import pandas as pd
 
-from modeling import BOUNDARY, DELAY_BANDS, MIN_ORDERS, OUT, SEED, Logit, interval, load_orders, rate_row, risk, seller_weights, wilson
+from modeling import DELAY_BANDS, OUT, SEED, Logit, interval, load_orders, rate_row, risk, seller_weights, wilson
 
 REPLICATES = int(sys.argv[1]) if len(sys.argv) > 1 else 500
 seeds = iter(np.random.SeedSequence([SEED, 2]).spawn(30))
 data = load_orders()
 results, checks = {}, {}
 LATE_POINTS, LATE_ORDERS, LOW_POINTS = 2.0, 500, 5.0
+A2_ESTIMATE = round(json.loads((OUT / "class_a_results.json").read_text(encoding="utf-8"))["results"]["A2"]["estimate"], 2)
 A2_CATEGORICAL = ["purchase_month", "state_group", "item_band", "category_group"]
 A2_NUMERIC = ["log_order_value", "multi_seller"]
 
@@ -33,7 +34,8 @@ def pattern(estimate, ci, criterion, orders_ok=True):
         return "Pattern observed"
     if ci[1] < 0 and -estimate >= criterion and orders_ok:
         return "Pattern observed, opposite direction"
-    # This text also covers a large estimate that misses only the late-order requirement (B5 from 25 April 2018).
+    if ci[0] > 0 and estimate >= criterion:
+        return f"Meets the percentage-point criterion; misses the minimum of {LATE_ORDERS} late orders"
     if ci[0] > 0 or ci[1] < 0:
         return "Small pattern, below the screening criterion"
     return "Not observed"
@@ -79,7 +81,7 @@ results["B3"] = {
     "late_answered_before_vs_on_time": {"estimate": round(diff_before, 2), "ci": interval(boot[:, 0]), "odds_ratio": b3.odds_ratio(before_column), "mean_score": b3.mean_score_difference(before_column), "pattern": pattern(diff_before, interval(boot[:, 0]), LOW_POINTS)},
     "late_answered_after_vs_on_time": {"estimate": round(diff_after, 2), "ci": interval(boot[:, 1]), "odds_ratio": b3.odds_ratio(after_column), "mean_score": b3.mean_score_difference(after_column), "pattern": pattern(diff_after, interval(boot[:, 1]), LOW_POINTS)},
     "before_vs_after_among_late": {"estimate": round(rates[GROUPS[1]] - rates[GROUPS[2]], 2), "ci": interval(boot[:, 2])},
-    "a2_estimate_for_context": 51.04,
+    "a2_estimate_for_context": A2_ESTIMATE,
     "on_time_answered_before_arrival": int((reviewed["late"].eq(0) & reviewed["answer_timing"].eq("before arrival")).sum()),
     "share_of_late_reviews_answered_before": round(100 * (reviewed["late"].eq(1) & reviewed["answer_timing"].eq("before arrival")).sum() / reviewed["late"].sum(), 2),
 }

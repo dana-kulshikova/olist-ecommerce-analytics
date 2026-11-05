@@ -12,11 +12,10 @@ import json
 
 import numpy as np
 import pandas as pd
-import scipy.stats as ss
 import statsmodels.api as sm
 
 import sensitivity_common as sc
-from sensitivity_common import DELAY_BANDS, MIN_ORDERS, OUT, TIMING, Z, base, delta_rd, diagnostics, fit_lpm, fit_spec, with_distance
+from sensitivity_common import DELAY_BANDS, MIN_ORDERS, OUT, Z, base, delta_rd, fit_lpm, fit_spec, with_distance
 from modeling import Logit
 
 B4_ROWS, B7_ROWS, OTHER_ROWS, NOT_APPLICABLE = [], [], [], []
@@ -184,4 +183,3 @@ NOT_APPLICABLE = [
 output = {"b4": B4_ROWS, "b7": B7_ROWS, "other": OTHER_ROWS, "not_applicable": NOT_APPLICABLE}
 (OUT / "sensitivity_supplement.json").write_text(json.dumps(output, indent=1, default=str), encoding="utf-8")
 sc.timed("supplement done")
-_ = (ss, TIMING, diagnostics)

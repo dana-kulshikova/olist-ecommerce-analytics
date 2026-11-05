@@ -5,9 +5,6 @@ growth compares the same months. Writes data/processed/descriptive_results.json,
 """
 import json
 
-import numpy as np
-import pandas as pd
-
 from modeling import OUT, load_orders
 
 data = load_orders()
@@ -64,4 +61,3 @@ out["exposure"] = {"orders": len(data), "late_orders": int(total_late), "late_ra
 out["seasonality_note"] = "At most one complete year of data, so no seasonal claim is made."
 (OUT / "descriptive_results.json").write_text(json.dumps(out, indent=1, default=str), encoding="utf-8")
 print("descriptive done")
-_ = np

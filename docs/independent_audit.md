@@ -281,3 +281,62 @@ C10 says X3d has "no such note". `sensitivity_results.md` already listed the spa
 | Protected files | Fingerprints | 10 raw files and 54 backup files unchanged. Working Power BI file unchanged during this step |
 
 The independent recomputation wasn't re-run, because its inputs and logic didn't change.
+
+## Follow-up (2026-11-05): C13 and L6
+
+This follow-up records the separate change the addendum above refers to. It updates the status of L6 and C13 from that addendum. The original findings and counts are unchanged.
+
+### Status changes
+
+| ID | Issue | Status | What changed | Pending, and why |
+|---|---|---|---|---|
+| L6 | B5 pattern text | Resolved | `class_b.py` now reports "Meets the percentage-point criterion; misses the minimum of 500 late orders" when an estimate meets the point criterion but misses the order requirement. The re-run stored this text for B5 from 25 April 2018, and the log quotes it | None |
+| C13 | Code cleanliness | Partly resolved | Confirmed dead code removed from `descriptive.py`, `sensitivity_supplement.py` and `sensitivity_common.py`. `class_b.py` reads the A2 context value from `class_a_results.json`, still 51.04. `sensitivity_common.py` now stops with an error if `PEAK` differs from the written peak-month rule. 3 more unused imports found by a later scan were removed: `pd` from `descriptive.py`, and `BOUNDARY` and `MIN_ORDERS` from `class_b.py` | `PEAK` remains written in the code, now with that check. `class_a.py` and `modeling.py` still duplicate logic, because changing Class A logic was out of scope |
+
+**Totals across the 14 FAIL items:** 12 resolved, 2 partly resolved (C10, C13), 0 pending.
+
+`class_b.py` now depends on `class_a_results.json`, so `class_a.py` has to run first. The peak-month check passes on the correct set and raises an error when a month is removed from `PEAK`.
+
+### Output comparison
+
+`descriptive.py`, `class_b.py`, `sensitivity_supplement.py` and `sensitivity.py` were re-run with fixed seeds, using 8 threads. Outputs were compared exactly with a copy taken beforehand, with no tolerance.
+
+| File | Values compared | Result |
+|---|---|---|
+| `class_b_results.json` | 842, or 822 without empty containers | 7 changed: the B5 text and 6 p-values. The other 701 numeric values and 93 of 94 text values are identical |
+| `descriptive_results.json` | 456 | Byte-identical |
+| `sensitivity_results.json` | 8,367 | Byte-identical |
+| `sensitivity_supplement.json` | 1,534 | Byte-identical |
+| Other 8 files in `data/processed/` | Not re-run | Byte-identical, including `class_a_results.json` |
+
+So the B5 text isn't the only change in the stored Class B file. The 8-thread results were kept, because the differences don't affect any conclusion.
+
+The 3 extra unused imports were removed after this re-run, so the stored results weren't regenerated from the final code. Syntax trees before and after that removal are identical apart from the removed names.
+
+### P-value control
+
+**What was tested.** The 6 values are analytic Wald p-values, not simulated ones. Each tests whether one logistic regression coefficient is zero (B2 and B6 interactions, B3, both B5 periods, B6), using the coefficient divided by its seller-clustered standard error, with a two-sided normal p-value. They have no replicate count or simulation resolution, and the bootstrap doesn't feed into them. The simulated A6 p-value is a separate result and was neither re-run nor changed.
+
+**Largest relative difference:** 1.6 in a trillion (1.62e-12). The implied test statistics differ by less than 1e-13.
+
+| Control, using `class_b.py` at 2 bootstrap replicates on an isolated copy | Result |
+|---|---|
+| Previous code, 4 threads, against the earlier stored p-values | 0 of 7 differ |
+| Changed code, 4 threads, against the earlier stored p-values | 0 of 7 differ |
+| Previous code, 8 threads, against the re-run stored p-values | 0 of 7 differ |
+| Changed code, 8 threads, against the re-run stored p-values | 0 of 7 differ |
+| Repeat runs at 8 threads, for each code version | 0 of 7 differ |
+| Previous against changed code at 1, 4 and 8 threads, whole file | 1 of 822 values differs at each setting: the B5 text |
+
+**Conclusion.** The code change altered only the B5 text. The 6 p-value differences come from the thread count, which changes floating-point rounding. The earlier file matches a 4-thread run exactly. Because the controls used 2 replicates, they test the p-values and the effect of the code. The 500-replicate intervals are covered by the output comparison above.
+
+**Limit.** These controls ran on one machine. No estimate, interval or label changed in this comparison. Those values are stored rounded, so differences this small wouldn't normally show. The p-values are the only Class B values stored at full precision.
+
+### Reproducibility
+
+- **Thread counts:** the current stored Class B results were generated with 8 threads. The earlier version was generated with 4.
+- **Analytic Wald p-values:** these can differ slightly at full precision between thread counts, because the floating-point operations behind them are carried out differently. In this comparison, the largest relative difference was 1.62e-12.
+- **A6's simulated p-value:** this is a different kind of result. It comes from a seeded simulation, and its reported value is a limit set by the number of draws: at most 0.0002 raw and 0.0006 after Holm with 5,000 draws. The differences above say nothing about the precision of that limit.
+- **What can't be claimed:** byte-for-byte reproducibility across thread configurations. Repeat runs matched exactly at 8 threads on this machine, but no other machine was tested. The scripts don't set a thread count, and the repository doesn't record one, so a re-run may differ in these full-precision p-values.
+
+**Stored zero.** The B3 p-value for late orders answered before arrival is stored as `0.0`. Its test statistic is about 69.7, so the true value is too small for the number format. It should be read as extremely small, not as zero.

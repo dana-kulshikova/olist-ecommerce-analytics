@@ -370,7 +370,7 @@ Stage timing is split by the carrier date of 25 April 2018, because carrier time
 | From 25 April 2018 | 26,575 | 1,197 | 21.12% | 2.99% | +18.13 points | 15.25 to 20.86 | 9.63 (7.86 to 11.81) |
 
 - **Before 25 April 2018:** pattern observed. 1,337 late orders in the late-handover group.
-- **From 25 April 2018:** the difference is large, but this period misses the 500-late-order part of the screening criterion, with 470 late orders in that group. The +18.13 points is above the 2-point part, so this isn't a small pattern, although the stored results file labels it "Small pattern, below the screening criterion" because that label also covers a missed order requirement. The estimates shouldn't be compared across the two periods.
+- **From 25 April 2018:** the difference is large, but this period misses the 500-late-order part of the screening criterion, with 470 late orders in that group. The +18.13 points is above the 2-point part, so this isn't a small pattern. The stored results file states this as "Meets the percentage-point criterion; misses the minimum of 500 late orders". The estimates shouldn't be compared across the two periods.
 - **Limits:** this describes which stage is linked to lateness. It doesn't show who caused a delay, and nothing here is attributed to carriers. A late handover also leaves less of the promised time for later stages, so some link is expected from how lateness is measured. The cause of the 25 April change is unknown.
 
 **Plain reading:** orders handed over late are far more often late, but most late orders had an on-time handover.
