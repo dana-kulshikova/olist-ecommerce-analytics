@@ -1,0 +1,25 @@
+relationship dd9d4082-1a7f-4bb0-aa08-f279cedf6580
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_orders'.order_purchase_timestamp
+	toColumn: LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114.Date
+
+relationship 66c55f0c-be21-4f01-85ed-1fe2b0f6717e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_orders'.order_approved_at
+	toColumn: LocalDateTable_5a2febad-e0ab-4c06-b609-b5bab219e67f.Date
+
+relationship 477d6ea7-a242-4b7b-bcdb-3f2cebfd156f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_orders'.order_delivered_carrier_date
+	toColumn: LocalDateTable_6dab6325-e638-4d59-9884-49955e82e406.Date
+
+relationship c1fff424-8d6f-4258-b6c9-6f742ae51bc6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_orders'.order_delivered_customer_date
+	toColumn: LocalDateTable_df06ae16-ae39-47ad-b91d-752ca8333313.Date
+
+relationship 63861e52-70d9-4814-94e2-9d0dfaf5d7ae
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_orders'.order_estimated_delivery_date
+	toColumn: LocalDateTable_f62286ec-905c-41c4-ae28-76a201b9a4c6.Date
+

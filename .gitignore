@@ -1,0 +1,34 @@
+# Source data: download it from Kaggle (see data/README.md)
+data/raw/*
+!data/raw/.gitkeep
+*.csv
+
+# Power BI local and cached files
+**/.pbi/localSettings.json
+**/.pbi/cache.abf
+*.abf
+*.pbix
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Credentials and local configuration
+.env
+.env.*
+*.pgpass
+*.pem
+*.key
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.code-workspace
+Thumbs.db
+desktop.ini
+.DS_Store
+*.tmp
+*.bak
+~$*

@@ -1,0 +1,300 @@
+table 'public bi_orders'
+	lineageTag: 1f6f9a30-f325-4834-acc4-1932e486567e
+
+	measure 'Total Product Sales' =
+			
+			CALCULATE(
+			    SUM('public bi_orders'[product_sales]),
+			    'public bi_orders'[order_status] = "delivered")
+		formatString: "R$ "#,##0.00
+		lineageTag: 73da7905-946a-45be-a495-66ce2b782599
+
+	measure 'Total Orders' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT('public bi_orders'[order_id]),
+			    'public bi_orders'[order_status] = "delivered"
+			)
+		formatString: #,##0
+		lineageTag: 1e1cd6bf-0343-48ec-bbdd-fbf27b29d71b
+
+	measure 'Average Order Value' =
+			
+			DIVIDE(
+			    [Total Product Sales],
+			    [Total Orders]
+			)
+		formatString: "R$ "#,##0.00
+		lineageTag: d88d209a-7d65-493b-b102-77483935ca22
+
+	measure Measure
+		lineageTag: 2a114f9e-ae7c-4f3b-9b06-ec9f658974ac
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Measure 2'
+		lineageTag: 34a98e83-2f5a-457d-9097-81e9348c329e
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Average Delivery Time' =
+			
+			CALCULATE(
+			    AVERAGEX(
+			        'public bi_orders',
+			        DATEDIFF(
+			            'public bi_orders'[order_purchase_timestamp],
+			            'public bi_orders'[order_delivered_customer_date],
+			            DAY
+			        )
+			    ),
+			    'public bi_orders'[order_status] = "delivered",
+			    'public bi_orders'[valid_delivery_dates] = TRUE()
+			)
+		formatString: 0.0 "days"
+		lineageTag: 3167f9d1-7f5a-4ea1-bc56-cffbc5de8ed3
+
+	measure 'On-Time Delivery Rate' =
+			
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS('public bi_orders'),
+			        'public bi_orders'[order_status] = "delivered",
+			        NOT(ISBLANK('public bi_orders'[order_delivered_customer_date])),
+			        INT('public bi_orders'[order_delivered_customer_date]) <= INT('public bi_orders'[order_estimated_delivery_date])
+			    ),
+			    CALCULATE(
+			        COUNTROWS('public bi_orders'),
+			        'public bi_orders'[order_status] = "delivered",
+			        NOT(ISBLANK('public bi_orders'[order_delivered_customer_date]))
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 06cb11be-bb90-4042-9941-4a66efc9fdf0
+
+	measure 'Key Takeaways' = ```
+			
+			"• R$ " & FORMAT([Total Product Sales] / 1000000, "#,##0.00") & "M in total product sales across "
+			& FORMAT([Total Orders], "#,##0") & " orders."
+			& UNICHAR(10) & UNICHAR(10)
+			& "• Average order value: R$ "
+			& FORMAT([Average Order Value], "#,##0.00") & "."
+			& UNICHAR(10) & UNICHAR(10)
+			& "• Average delivery time: "
+			& FORMAT([Average Delivery Time], "0.00") & " days."
+			& UNICHAR(10) & UNICHAR(10)
+			& "• On-time delivery rate: "
+			& FORMAT([On-Time Delivery Rate], "0.00%") & "."
+			
+			```
+		lineageTag: 98d3778a-9186-4dcb-a087-9346a6b95f04
+
+	measure 'Top State by Sales' =
+			
+			VAR TopStateRow =
+			    TOPN(
+			        1,
+			        ADDCOLUMNS(
+			            VALUES('public bi_orders'[customer_state]),
+			            "@Sales", [Total Product Sales]
+			        ),
+			        [@Sales], DESC
+			    )
+			RETURN
+			    IF(
+			        NOT(ISBLANK([Total Product Sales])),
+			        MAXX(TopStateRow, 'public bi_orders'[customer_state])
+			    )
+		lineageTag: 5f0d7a3e-2c41-4b8e-9a56-3e1c7d90b2a4
+
+	measure 'Top State Sales Share' =
+			
+			VAR TopStateSales =
+			    MAXX(
+			        VALUES('public bi_orders'[customer_state]),
+			        [Total Product Sales]
+			    )
+			RETURN
+			    DIVIDE(TopStateSales, [Total Product Sales])
+		formatString: 0.0%
+		lineageTag: a2c86e14-7b3f-4d09-8e52-6f4b1d3ac975
+
+	column order_id
+		dataType: string
+		lineageTag: 848cfb97-56e1-4cdc-b6ff-604d108965db
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		lineageTag: f7622540-5542-49fa-a098-3bd7f8efab3e
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_unique_id
+		dataType: string
+		lineageTag: db5424bd-6b31-4109-964d-1230df96b390
+		summarizeBy: none
+		sourceColumn: customer_unique_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_state
+		dataType: string
+		lineageTag: 6289a281-f54e-4690-8297-1d00833f5f4b
+		summarizeBy: none
+		sourceColumn: customer_state
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_city
+		dataType: string
+		lineageTag: 354d0af2-ec92-4969-ab0d-83c73ca2f9ec
+		summarizeBy: none
+		sourceColumn: customer_city
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_status
+		dataType: string
+		lineageTag: e0a4f77d-44b6-4822-bb9b-9ffb40f914c0
+		summarizeBy: none
+		sourceColumn: order_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_purchase_timestamp
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d0d51b24-86d9-4a10-a8cb-88a3c12bbca1
+		summarizeBy: none
+		sourceColumn: order_purchase_timestamp
+
+		variation Variation
+			isDefault
+			relationship: dd9d4082-1a7f-4bb0-aa08-f279cedf6580
+			defaultHierarchy: LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_approved_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6f09cb1a-5714-4cfb-88c7-22952cbcf299
+		summarizeBy: none
+		sourceColumn: order_approved_at
+
+		variation Variation
+			isDefault
+			relationship: 66c55f0c-be21-4f01-85ed-1fe2b0f6717e
+			defaultHierarchy: LocalDateTable_5a2febad-e0ab-4c06-b609-b5bab219e67f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_delivered_carrier_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8cd6777a-e3d7-4217-a8a6-612b1f662a25
+		summarizeBy: none
+		sourceColumn: order_delivered_carrier_date
+
+		variation Variation
+			isDefault
+			relationship: 477d6ea7-a242-4b7b-bcdb-3f2cebfd156f
+			defaultHierarchy: LocalDateTable_6dab6325-e638-4d59-9884-49955e82e406.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_delivered_customer_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1195d41c-6ec9-41d4-9551-c3a9b5fe4228
+		summarizeBy: none
+		sourceColumn: order_delivered_customer_date
+
+		variation Variation
+			isDefault
+			relationship: c1fff424-8d6f-4258-b6c9-6f742ae51bc6
+			defaultHierarchy: LocalDateTable_df06ae16-ae39-47ad-b91d-752ca8333313.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_estimated_delivery_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b16f255f-c440-47c0-82eb-135979fafa0b
+		summarizeBy: none
+		sourceColumn: order_estimated_delivery_date
+
+		variation Variation
+			isDefault
+			relationship: 63861e52-70d9-4814-94e2-9d0dfaf5d7ae
+			defaultHierarchy: LocalDateTable_f62286ec-905c-41c4-ae28-76a201b9a4c6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_sales
+		dataType: double
+		lineageTag: 097d33d3-3275-4c11-ab32-d9baf149853f
+		summarizeBy: sum
+		sourceColumn: product_sales
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column freight_value
+		dataType: double
+		lineageTag: 977479c7-222e-44fd-b3b9-72eca96ed42c
+		summarizeBy: sum
+		sourceColumn: freight_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column items_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 3987c629-aa02-40de-9e7b-6f3d43a6b520
+		summarizeBy: sum
+		sourceColumn: items_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column payment_total
+		dataType: double
+		lineageTag: bfcb8c91-6350-47d0-a84a-f9ff6a7cfb1b
+		summarizeBy: sum
+		sourceColumn: payment_total
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column valid_delivery_dates
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5b3476ee-db3b-4eb2-bcee-fdfe87f3d9ba
+		summarizeBy: none
+		sourceColumn: valid_delivery_dates
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public bi_orders' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("localhost", "ecommerce_bi"),
+				    public_bi_orders = Source{[Schema="public",Item="bi_orders"]}[Data]
+				in
+				    public_bi_orders
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
