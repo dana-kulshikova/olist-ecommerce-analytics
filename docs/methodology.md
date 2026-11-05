@@ -168,13 +168,48 @@ The cause is unknown. The data can't show whether this reflects recording system
 - **Lateness depends on the promise.** A longer estimate makes an order less likely to count as late.
 - **One marketplace, one period.** Results may not generalise beyond 2016–2018 or to other marketplaces.
 
+## Safeguards
+
+- **Definitions stay fixed.** The seven pre-specified questions and their comparisons won't change in response to results.
+- **Models must earn their place.** Sample sizes, sparse groups, convergence and stability are checked before any adjusted estimate is interpreted. If the data can't support a model, a simpler one is used and the reason is reported.
+- **Sellers are taken into account.** Orders from the same seller aren't treated as fully independent, wherever that's feasible.
+- **Claims stay observational.** Findings are described as associations, and any action is framed as something to test.
+- **Findings stay explainable.** Each one is written in plain language, with its numbers and limits, for business readers and interviews.
+
 ## Order of work
 
-1. Investigate the 197 flagged orders from the source CSVs (done).
-2. Build the read-only SQL dataset, export it, reproduce the KPI figures exactly, and compare stored values with the source CSVs (done; see [data_quality_assessment.md](data_quality_assessment.md)).
-3. Run the pre-specified questions, then the exploratory and descriptive work, then the sensitivity analyses.
-4. Cross-check key results between SQL and Python.
-5. Record every result, including unsupported ones, in `hypothesis_log.md`.
+**Completed**
+
+1. Investigate the 197 flagged orders from the source CSVs.
+2. Build the read-only SQL dataset, export it, reproduce the KPI figures exactly, and compare stored values with the source CSVs (see [data_quality_assessment.md](data_quality_assessment.md)).
+
+**Main analysis**
+
+| Step | Work | Review |
+|---|---|---|
+| 0 | Build the analysis table and reproduce the eight KPIs. Any mismatch stops the work | |
+| 1 | Delivery questions: A1, A4, A5, A6, A7 | |
+| 2 | Satisfaction questions: A2, A3 | |
+| 3 | Lock the pre-specified results | Reviewed before continuing |
+| 4 | Exploratory delivery questions: B1, B2, B5 | |
+| 5 | Exploratory satisfaction questions: B3, B4, B6, B7 | |
+| 6 | Descriptive context, including sales and the priority view | |
+| 7 | Sensitivity analyses and robustness labels | |
+| 8 | Independent cross-check against SQL and the source CSVs | All findings reviewed |
+| 9 | Recommendations | Approved separately |
+
+Every result, including unsupported ones, is recorded in `hypothesis_log.md`. The question IDs stay the same throughout, so results remain traceable to this plan.
+
+## From findings to recommendations
+
+| Evidence | What it can support |
+|---|---|
+| Supported and robust | A recommended action or experiment |
+| Supported and sensitive | A recommended experiment, with the caveat stated |
+| Exploratory pattern | An investigation or pilot, labelled as exploratory |
+| Unsupported or inconclusive | No action. It's still reported, and may help rule out a priority |
+
+Candidates are ranked on strength of evidence, business exposure, whether the business could act on them and whether they could be tested. There will be 3–5 recommendations, with no estimated ROI, savings or causal effects.
 
 ## Changes to this plan
 
@@ -186,4 +221,6 @@ Any change after approval is listed here with its date and reason, including whe
 | 2026-11-05 | Added separate stage-timing analysis before and from April 2018, with transition checks | Preliminary data showed an abrupt change in carrier timestamps. The cause is unknown | Yes: preliminary timestamp patterns, no main analysis results |
 | 2026-11-05 | Moved the primary stage-timing boundary to the carrier date of 25 April 2018, keeping the purchase-month split as a sensitivity check | Daily stored values place the change between 24 and 25 April 2018. The cause is unknown | Yes: daily timestamp patterns, no main analysis results |
 | 2026-11-05 | Treated blank and NULL categories as `unknown` in Python, with no new export | The database stores missing categories as blank text, for the same orders that have no category in the source | Yes: category counts, no main analysis results |
+| 2026-11-05 | Added the Stage 2 workflow: testing order, Holm tests, variable groupings, sensitivity groups, model checks and safeguards | Fixes these choices before any adjusted estimate is calculated | No main analysis results; preliminary unadjusted figures already seen |
+| 2026-11-05 | Limited bootstrap intervals to primary adjusted estimates, with clustered standard errors for sensitivity analyses | Keeps sensitivity runs practical, since they're compared with the primary estimates | No main analysis results; preliminary unadjusted figures already seen |
 | 2026-11-05 | Added handling for ZIP positions, deliveries over 60 days and reviews created before purchase, with related sensitivity checks | Data quality checks identified these cases | Yes: data quality counts, no main analysis results |

@@ -43,8 +43,70 @@ New Power BI measures must return the same values as SQL and Python, and they'll
 - **Reported for every hypothesis:** group sizes, effect size, 95% confidence interval and a business interpretation. P-values are secondary and never decide a result alone.
 - **Rates:** Wilson 95% intervals.
 - **Adjusted differences:** logistic regression, converted by standardisation to an adjusted risk difference in percentage points, with odds ratios as a secondary measure.
-- **Uncertainty in models:** standard errors clustered by seller, since orders from one seller aren't independent. Risk-difference intervals use a seller-level cluster bootstrap with 500 replicates and a fixed random seed.
-- **Multiple testing:** Holm correction across the seven Class A tests. Class B results don't enter this family, and their p-values are unadjusted and descriptive.
+- **Uncertainty in models:** standard errors clustered by seller, since orders from one seller aren't independent. Primary Class A and Class B adjusted risk differences use a seller-level cluster bootstrap with 500 replicates and the fixed random seed 20261105. Sensitivity analyses use clustered standard errors where applicable.
+- **Multiple testing:** Holm correction across the seven Class A tests listed below. Class B results don't enter this family, and their p-values are unadjusted and descriptive.
+- **Interpretation:** every result is an observational association. No adjustment here turns an estimate into a causal effect.
+
+## Stage 2 workflow
+
+The steps and review points are in `methodology.md`. Class A results are locked and reviewed before any exploratory work runs. The Class A questions, comparisons and predictions below don't change in response to results.
+
+### Test used for Holm correction
+
+| ID | Test |
+|---|---|
+| A1 | Clustered Wald test of the RJ coefficient |
+| A2 | Clustered Wald test of the late coefficient |
+| A3 | Clustered Wald test of the trend across ordered delay bands |
+| A4 | Clustered Wald test of 600–1,000 km against 0–100 km |
+| A5 | Clustered Wald test of the top against the bottom freight quartile |
+| A6 | Simulation of the concentration gap under equal month-adjusted seller risk, with the fixed seed |
+| A7 | Clustered joint Wald test of the category terms |
+
+### Variable groupings
+
+| Variable | Grouping |
+|---|---|
+| Item count | 1, 2, 3 or more |
+| Order value | Natural logarithm of product sales |
+| Purchase month | One group per month. Months with too few orders or events are merged with an adjacent month, and the merge is reported |
+| Customer state | States with at least 1,000 base orders, plus "other" |
+| Category group | The 15 largest categories by base orders, plus "other", with `unknown` kept separate |
+| Distance band | As defined in A4 |
+| Same-state seller | Yes or no |
+
+### Model checks
+
+These are run and recorded before any adjusted estimate is interpreted:
+
+- **Sample sizes:** orders and events (late orders or low ratings) for each group, and overall events per model term.
+- **Sparse groups:** any group with under 30 orders or under 10 events is merged as above, or dropped from the adjustment, and this is reported.
+- **Overlap:** whether the compared groups share the same distance bands and periods. This matters for A1 in particular.
+- **Convergence and separation:** the model must converge, with no coefficient or standard error at an implausible size.
+- **Related predictors:** variance inflation is checked for predictors likely to overlap, such as items, sellers and order value.
+- **Bootstrap reliability:** the share of replicates that fail is reported. Above 5%, the interval is flagged as unreliable.
+
+**If a model fails:** use a simpler adjustment set, keeping the comparison the same, and report both the problem and the change. The unadjusted result is always shown alongside it. A result that can't be estimated reliably is labelled inconclusive.
+
+### Dependence limitations
+
+- A6 estimates seller-level results directly, so seller clustering doesn't apply in the same way.
+- Multi-seller orders are assigned to the seller of the highest-priced item for clustering, which simplifies their true dependence.
+- Dependence within customer, region or time isn't modelled, so intervals may still be somewhat too narrow.
+
+### Outputs
+
+| Output | Location | In Git |
+|---|---|---|
+| Analysis scripts | `python/analysis/` | Yes |
+| Analysis table | `data/processed/` | No |
+| Results and model checks for each hypothesis | `docs/hypothesis_log.md` | Yes |
+| Sensitivity tables | `docs/sensitivity_results.md` | Yes |
+| Recommendations | `docs/recommendations.md` | Yes |
+| Charts of aggregated data | `docs/figures/` | Yes |
+| Power BI specification: fields, measures, filter behaviour, visuals and target figures | `docs/powerbi_spec.md` | Yes |
+
+No PBIP files change during this stage.
 
 ## Class A: pre-specified questions
 
@@ -208,7 +270,14 @@ These were shaped by the preview or raised afterwards. They can suggest what to 
 
 ## Sensitivity analyses
 
-Each result reports the alternative estimate, its interval, and the change in size and direction from the primary analysis, then receives a robustness label as defined in `methodology.md`.
+Each result reports the alternative estimate, its interval, and the change in size and direction from the primary analysis, then receives a robustness label as defined in `methodology.md`. Each check runs only where it applies.
+
+| Group | Checks | Role |
+|---|---|---|
+| Review choices | S1, S2, S12, S16 | Can decide the robustness label |
+| Timestamp choices | S3, S4, S14, S15 | Can decide the robustness label |
+| Structure choices | S7, S10, S11, S13 | Can decide the robustness label |
+| Different-question checks | S5, S6, S8, S9 | Interpreted, not treated as failures, because they change the question being asked |
 
 | ID | Choice tested | Primary | Alternatives | Applies to |
 |---|---|---|---|---|
