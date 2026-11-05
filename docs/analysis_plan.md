@@ -300,6 +300,8 @@ Each result reports the alternative estimate, its interval, and the change in si
 
 S14 to S16 were added after inspecting preliminary data.
 
+**Added after the Class A results were known:** an exploratory check of A5 with customer state added to the model, labelled as exploratory. The original A5 model, its definition and its result don't change.
+
 Some alternatives test a definition rather than a neutral variation. Excluding peak months, for example, asks a different question, and its result is interpreted that way.
 
 ## Read-only export
