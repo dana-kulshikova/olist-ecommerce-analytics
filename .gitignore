@@ -3,6 +3,10 @@ data/raw/*
 !data/raw/.gitkeep
 *.csv
 
+# Local analysis exports
+data/processed/*
+!data/processed/.gitkeep
+
 # Power BI local and cached files
 **/.pbi/localSettings.json
 **/.pbi/cache.abf
