@@ -34,7 +34,9 @@ New Power BI measures must return the same values as SQL and Python, and they'll
 - **Several sellers:** for clustering only, an order belongs to the seller of its highest-priced item. Nothing is divided between sellers.
 - **Category ties:** the highest-priced item, then the lowest item number.
 - **Distance:** median ZIP-prefix positions, within Brazil's bounds.
-- **Stage timing:** provisional exclusions are in `methodology.md` until the 197 flagged orders have been investigated. That work covers types and overlap, gap sizes and times of day, source against stored values, and clustering by month, seller and state.
+- **Flagged orders:** the 189 flagged orders in the base stay in late-rate and review results, and leave stage timing, including handover status. The 8 with no delivery date are outside the base.
+- **Stage-timing periods:** by carrier date, before 25 April 2018 and from 25 April 2018. This was set after inspecting the data, and no cause is assumed.
+- **Blank categories:** the Python loader treats blank and NULL as `unknown`, so results don't depend on how the data was imported.
 
 ## Statistical conventions
 
@@ -166,12 +168,12 @@ These were shaped by the preview or raised afterwards. They can suggest what to 
 ### B5. Seller handover and the later delivery stage
 
 - **Outcome:** late; handover days and handover-to-delivery days.
-- **Groups:** orders with a late and an on-time seller handover.
-- **Method:** the A4 model with handover status added; median stage times on valid date sequences.
-- **Effect size:** adjusted risk difference; share of all late orders from each group; difference in median stage days.
+- **Groups:** orders with a late and an on-time seller handover, analysed separately for carrier dates before and from 25 April 2018, on valid date sequences only.
+- **Method:** the A4 model with handover status added, within each period; median stage times.
+- **Effect size:** adjusted risk difference; share of late orders from each group; difference in median stage days. Each is reported by period, and periods aren't pooled in the primary result.
 - **Confidence interval:** cluster bootstrap.
 - **Screening criterion:** 2 points and at least 500 late orders.
-- **Note:** this describes which stage a delay is linked to. It doesn't identify who caused it or attribute anything to carriers.
+- **Note:** this describes which stage a delay is linked to. It doesn't identify who caused it or attribute anything to carriers, time zones or recording systems. The split between periods was added after inspecting preliminary data.
 
 ### B6. Multi-item orders and low ratings
 
@@ -223,8 +225,26 @@ Each result reports the alternative estimate, its interval, and the change in si
 | S11 | Category | Highest-priced item | First item; excluding `unknown` | A2, A7 |
 | S12 | Missing reviews | Reviewed orders only | Best- and worst-case bounds for unreviewed orders | A2, A3 |
 | S13 | Model form | Logistic with clustered errors | Linear probability model; heteroskedasticity-robust errors | All adjusted results |
+| S14 | Carrier timestamp period | Separate periods from the carrier date of 25 April 2018 | Purchase-month split (before and from April 2018); excluding carrier dates within 14 days of the boundary; one pooled period | B5 and any stage timing |
+| S15 | Long deliveries | Kept | Excluding deliveries over 60 days | Late-rate, stage and review results |
+| S16 | Reviews created before purchase | Kept | Excluded | All review results |
+
+S14 to S16 were added after inspecting preliminary data.
 
 Some alternatives test a definition rather than a neutral variation. Excluding peak months, for example, asks a different question, and its result is interpreted that way.
+
+## Read-only export
+
+`sql/04_delivery_analysis.sql` exports the analysis data to `data/processed/`, which Git ignores. It runs inside a read-only transaction and ends with a rollback. Run it from the repository root, using your own PostgreSQL username. `psql` asks for the password itself.
+
+```powershell
+$env:PGCLIENTENCODING = 'UTF8'
+$env:PGOPTIONS = '-c default_transaction_read_only=on'
+& "C:\Program Files\PostgreSQL\17\bin\psql.exe" -X -q -U <your_user> -d ecommerce_bi -v ON_ERROR_STOP=1 -f sql/04_delivery_analysis.sql
+Remove-Item Env:PGOPTIONS, Env:PGCLIENTENCODING
+```
+
+The script contains no review text and no customer identifiers. It was tested end to end on a temporary PostgreSQL instance loaded from the source CSVs, and then run on the project database. `python/validate_export.py` checks the export against the locked KPIs and the source CSVs.
 
 ## Reproducible environment
 

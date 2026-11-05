@@ -120,12 +120,46 @@ The exact expressions for each tool are in [analysis_plan.md](analysis_plan.md#m
 | Handover delay | Carrier handover after the latest item's shipping limit |
 | Later delivery stage | Called the **handover-to-delivery stage**. It isn't attributed to carriers, because the data can't separate carrier performance from other causes |
 | Multi-item order | Two or more item rows |
-| Category | The highest-priced item's category; missing values are labelled `unknown` |
+| Category | The highest-priced item's category. Blank and NULL values are both treated as `unknown` in Python |
 | Distance | Approximate straight-line distance between ZIP-prefix positions, not route distance |
+| Customers or sellers with no ZIP position | Leave out of distance analysis, and report how many (279 customers, 7 sellers) |
+| Deliveries over 60 days (288 orders) | Keep them, since they may be real delays, and test their influence |
+| Reviews created before the purchase date (64) | Keep them, and test excluding them |
 | Small groups | Sellers need at least 100 orders to be ranked. Groups under 30 aren't reported |
 | Data source | PostgreSQL read-only exports are primary, cross-checked against the source CSVs |
 
-**Invalid date sequences (provisional):** 197 delivered orders have `valid_delivery_dates = FALSE`. They're being investigated to separate genuine inconsistencies from possible timestamp or time zone effects. For now, they stay in late rates and are left out of stage timing. This rule will be confirmed or changed here, with reasons, before the main analysis.
+### Orders with invalid date sequences
+
+197 delivered orders have `valid_delivery_dates = FALSE`. The full investigation is in [data_quality_assessment.md](data_quality_assessment.md).
+
+| Group | Orders |
+|---|---:|
+| All flagged orders | 197 |
+| No delivery date, so outside the analysis base | 8 |
+| In the analysis base | **189** |
+| Of those: carrier before purchase | 165 |
+| Of those: delivery before carrier | 23 |
+| Of those: carrier date missing | 1 |
+
+These groups don't overlap. An anomaly removes an order only from calculations that rely on the unreliable date:
+
+| Calculation | Flagged orders in the base |
+|---|---|
+| Late rate | **Kept.** It uses only the delivery and estimated dates |
+| Review results | **Kept.** 188 of the 189 have a review |
+| Stage timing, including handover status | **Excluded.** This leaves 96,281 orders |
+| Approval-to-carrier time | Not calculated for any order, because 1,350 orders have carrier before approval |
+
+### Change in carrier timestamps on 25 April 2018
+
+**This rule was set after inspecting the data, so it isn't pre-specified.** Stored carrier timestamps change abruptly between 24 and 25 April 2018: the typical recorded time moves from evening to midday, and the small-gap carrier-before-purchase orders appear only from that date on. The other order timestamps don't show this change.
+
+The cause is unknown. The data can't show whether this reflects recording systems, time zones, carrier behaviour or another operational change, and the analysis doesn't attribute it to any of them.
+
+- **Stage timing is analysed separately** by carrier date: before 25 April 2018 (69,129 orders) and from 25 April 2018 (27,152 orders).
+- **The boundary is tested** using a purchase-month split (before and from April 2018), excluding carrier dates within 14 days of the boundary, and treating the data as one period.
+- **Stage comparisons for the three peak months** use the period before the boundary.
+- **Late rates and review results don't change**, because they don't use the carrier timestamp.
 
 ## Known limitations
 
@@ -136,8 +170,8 @@ The exact expressions for each tool are in [analysis_plan.md](analysis_plan.md#m
 
 ## Order of work
 
-1. Investigate the 197 flagged orders, and confirm the rule above.
-2. Build the read-only SQL dataset, export it, and reproduce the KPI figures exactly.
+1. Investigate the 197 flagged orders from the source CSVs (done).
+2. Build the read-only SQL dataset, export it, reproduce the KPI figures exactly, and compare stored values with the source CSVs (done; see [data_quality_assessment.md](data_quality_assessment.md)).
 3. Run the pre-specified questions, then the exploratory and descriptive work, then the sensitivity analyses.
 4. Cross-check key results between SQL and Python.
 5. Record every result, including unsupported ones, in `hypothesis_log.md`.
@@ -148,4 +182,8 @@ Any change after approval is listed here with its date and reason, including whe
 
 | Date | Change | Reason | Made after seeing results? |
 |---|---|---|---|
-| | None yet | | |
+| 2026-11-05 | Confirmed the handling of flagged orders: they stay in late rates and review results, and leave stage timing only | The investigation of the 197 orders was completed, as the plan required | Yes: flagged-order counts and late-rate effect, no main analysis results |
+| 2026-11-05 | Added separate stage-timing analysis before and from April 2018, with transition checks | Preliminary data showed an abrupt change in carrier timestamps. The cause is unknown | Yes: preliminary timestamp patterns, no main analysis results |
+| 2026-11-05 | Moved the primary stage-timing boundary to the carrier date of 25 April 2018, keeping the purchase-month split as a sensitivity check | Daily stored values place the change between 24 and 25 April 2018. The cause is unknown | Yes: daily timestamp patterns, no main analysis results |
+| 2026-11-05 | Treated blank and NULL categories as `unknown` in Python, with no new export | The database stores missing categories as blank text, for the same orders that have no category in the source | Yes: category counts, no main analysis results |
+| 2026-11-05 | Added handling for ZIP positions, deliveries over 60 days and reviews created before purchase, with related sensitivity checks | Data quality checks identified these cases | Yes: data quality counts, no main analysis results |
