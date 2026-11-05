@@ -10,7 +10,7 @@ Results recorded under the plan in [analysis_plan.md](analysis_plan.md) and [met
 | Robustness (16 sensitivity analyses) | Assessed; see the robustness section below |
 | Class B exploratory questions | Complete and sensitivity-tested; still **exploratory** |
 | Class C descriptive context | Complete |
-| Independent cross-check of results | Not yet run |
+| Independent cross-check of results | Run; see [independent_audit.md](independent_audit.md), including its remediation addendum and open items |
 
 **How to read this log.** An evidence label describes what the primary analysis shows. Robustness is a separate judgement about whether the conclusion holds under other reasonable choices. Neither one shows a cause. All results are observational associations, not causal effects. The data was also previewed before the plan was written, so no result is fully independent confirmation. Screening criteria are researcher-defined, not business-validated targets.
 
@@ -23,10 +23,10 @@ Results recorded under the plan in [analysis_plan.md](analysis_plan.md) and [met
 | A3 | Longer delays and low ratings | +42.10 points (15+ against 1–3 days) | 39.04 to 45.22 | 2.79e-121 | 5 points between each adjacent band | Inconclusive | Unresolved |
 | A4 | 600–1,000 km against 0–100 km late rate | +0.59 points | −0.49 to 1.50 | 0.257 | 2 points, 500+ late orders | Unsupported | Robustly unsupported under the prespecified comparison |
 | A5 | Highest against lowest freight quartile late rate | +2.16 points | 1.27 to 3.01 | 3.20e-06 | 2 points, 500+ late orders | Supported, close to the criterion | Sensitive; judgement incorporates an exploratory state-adjusted check |
-| A6 | Top 10% of sellers: late share minus order share | +6.97 points | 2.48 to 10.66 | 0.0006 | 10 points | Detectable, not practically important | Robustly below the practical-importance criterion; sensitive to peak-month selection |
-| A7 | Spread between categories' late rates | 3.69 points | 2.88 to 6.90 | 0.0201 | 5 points | Detectable, not practically important | Robustly below the practical-importance criterion; weaker statistical detectability under some restrictions |
+| A6 | Top 10% of sellers: late share minus order share | +6.97 points | 2.48 to 10.66 | At most 0.0006 | 10 points | Detectable, not practically important | Below the practical-importance criterion in all tested point estimates; uncertainty intervals sometimes reach the criterion |
+| A7 | Spread between categories' late rates | 3.69 points | 2.88 to 6.90 | 0.0201 | 5 points | Detectable, not practically important | Below the practical-importance criterion in all tested point estimates; uncertainty intervals reach the criterion |
 
-Holm correction covers these seven tests. A2's raw p-value is too small for the software to represent, so it's shown as below 1e-300.
+Holm correction covers these seven tests. A2's raw p-value is too small for the software to represent, so it's shown as below 1e-300. A6's value is at the smallest level its simulation can measure, so it's an upper limit.
 
 **Higher-replication bootstrap:** A5, A6 and A7 were flagged because their intervals straddle the screening criterion, and A7's Holm p-value also lies between 0.01 and 0.10. At 2,000 replicates, their intervals still straddle the criteria: A5 1.29 to 3.02, A6 2.70 to 10.40, and A7 3.03 to 6.32. A4's interval includes zero, so it was flagged automatically, but its upper limit is clearly below the criterion, so it wasn't re-run.
 
@@ -39,8 +39,8 @@ Full results are in [sensitivity_results.md](sensitivity_results.md). Evidence l
 - **A3, unresolved.** The evidence label stays Inconclusive. The overall rise is stable across data-handling checks, but within answer-timing groups it's −2.42 points (−7.11 to 2.28) before recorded delivery, and +4.84 points (−5.04 to 14.72) for 8–14 against 1–3 days after it. Survey creation date gives a different picture (see B4). Timing and delay length are too closely linked to separate here.
 - **A4, robustly unsupported under the prespecified comparison.** The 600–1,000 km against 0–100 km estimate stays below the criterion, with an interval including zero, in every label-deciding run. **This doesn't show that distance has no relationship with lateness.** The comparison gives −1.34 points (−2.11 to −0.56) excluding peak months and +2.15 points (1.13 to 3.16) excluding purchases from July 2018, and the 2,000+ km band is +2.52 points (0.22 to 4.82) against 0–100 km.
 - **A5, sensitive.** The Supported evidence label is preserved. **This robustness judgement incorporates an exploratory state-adjusted check**, which is outside the label-deciding rule, and it's a judgement call. Label-deciding checks alone stay just above the criterion, but adding customer state gives +0.97 points (−0.01 to 1.94), and excluding peak months gives +0.88 points (0.17 to 1.59). In the larger bootstrap, 66.0% of replicates reach the criterion.
-- **A6, robustly below the practical-importance criterion, and sensitive to peak-month selection.** The gap stays below 10 points in every run. Excluding peak months gives +3.40 points (−0.49 to 8.15), and its split-half gap of 2.20 is close to the 2.15 expected with no real seller differences. 7 sellers remain above the funnel limit in that run.
-- **A7, robustly below the practical-importance criterion, with weaker statistical detectability under some restrictions.** The spread stays below 5 points in every run. The joint test is p = 0.010 in the baseline, and p = 0.054 when deliveries over 60 days are excluded. The extreme categories also change when peak months are excluded.
+- **A6, below the practical-importance criterion in all tested point estimates; uncertainty intervals sometimes reach the criterion.** The gap stays below 10 points in every run. Its interval reaches 10 points in the primary result (2.48 to 10.66), at 2,000 replicates (2.70 to 10.40) and in 4 of the 6 label-deciding runs. The result is also sensitive to peak-month selection: excluding peak months gives +3.40 points (−0.49 to 8.15), and its split-half gap of 2.20 is close to the 2.15 expected with no real seller differences. 7 sellers remain above the funnel limit in that run.
+- **A7, below the practical-importance criterion in all tested point estimates; uncertainty intervals reach the criterion.** The spread stays below 5 points in every run. Its interval reaches 5 points in the primary result (2.88 to 6.90), at 2,000 replicates (3.03 to 6.32) and in all 8 label-deciding runs that have an interval. Statistical detectability is also weaker under some restrictions. The joint test is p = 0.010 in the baseline, and p = 0.054 when deliveries over 60 days are excluded. The extreme categories also change when peak months are excluded.
 
 ## Results by question
 
@@ -159,7 +159,7 @@ Full results are in [sensitivity_results.md](sensitivity_results.md). Evidence l
 | Sellers below the funnel limit | 4 |
 | Sellers outside the limits expected by chance | 0.4 |
 
-- **Test:** one-sided simulation with 5,000 draws, with a smallest possible p-value near 0.0002. Raw p 0.0002, Holm p 0.0006.
+- **Test:** one-sided simulation with 5,000 draws, with a smallest possible p-value near 0.0002. No simulated gap reached the observed one, so raw p is at most 0.0002 and Holm p at most 0.0006. These are limits set by the number of draws, not measured values. The independent audit used 2,000 draws and also found none, giving its own limits of 0.0005 and 0.0015. The difference comes only from the number of draws.
 - **Practical significance:** the estimate is below the 10-point criterion, and the interval straddles it, including at 2,000 replicates (2.70 to 10.40).
 - **Selection-related uncertainty:** ranking sellers by late orders in the same data flatters the top group, and even equal sellers would show a gap of about 2.41 points. The bootstrap re-ranks sellers in each replicate, so its interval can also be inflated. The split-half figure is the fairer guide to the size of the gap.
 - **Interpretation limit:** a seller's result can reflect routes and customers served, not only the seller's own performance.
@@ -274,12 +274,14 @@ Labels here are "pattern observed" or "not observed", never "confirmed". All int
 
 **Two timing definitions.** Review creation date is when the survey record was created. The review answer timestamp is when the answer was recorded. Neither is definitive evidence of when a customer formed or submitted the rating. A review created before delivery can have an answer recorded after it, so the two definitions split orders differently.
 
+**S9 groups use calendar dates.** "Before delivery date" means the review was created on an earlier date than the delivery. "On or after delivery date" includes reviews created on the delivery date itself, so 198 late reviews in this group have an answer timestamp before the recorded delivery. Creation date is also closely tied to delay length: 20.8%, 90.7%, 99.9% and 100% of late reviews in the four delay bands were created before the delivery date, so the later group has almost no reviews beyond 7 days late. Neither definition shows when a customer formed or submitted a rating.
+
 | Timing definition | Group | 1–3 days | 4–7 days | 8–14 days | 15+ days |
 |---|---|---:|---:|---:|---:|
 | Answer timestamp (primary) | Before delivery | 78.85% (n=416) | 81.51% (n=1,352) | 82.36% (n=1,389) | 78.88% (n=1,316) |
 | Answer timestamp (primary) | After delivery | 18.59% (n=1,436) | 20.45% (n=396) | 26.32% (n=57) | Not reported (n=19) |
-| Review creation date (S9) | Before delivery | 59.84% (n=386) | 71.80% (n=1,585) | 80.21% (n=1,445) | 78.35% (n=1,335) |
-| Review creation date (S9) | After delivery | 24.83% (n=1,466) | 27.61% (n=163) | Not reported (n=1) | Not reported (n=0) |
+| Review creation date (S9) | Before delivery date | 59.84% (n=386) | 71.80% (n=1,585) | 80.21% (n=1,445) | 78.35% (n=1,335) |
+| Review creation date (S9) | On or after delivery date | 24.83% (n=1,466) | 27.61% (n=163) | Not reported (n=1) | Not reported (n=0) |
 
 **Plain reading:** the link between delay length and low ratings within timing groups depends on the timing definition. With the answer timestamp it's weak; with review creation date, low ratings rise with delay. The data is too thin to judge long delays recorded after delivery, so this stays unresolved.
 
@@ -368,7 +370,7 @@ Stage timing is split by the carrier date of 25 April 2018, because carrier time
 | From 25 April 2018 | 26,575 | 1,197 | 21.12% | 2.99% | +18.13 points | 15.25 to 20.86 | 9.63 (7.86 to 11.81) |
 
 - **Before 25 April 2018:** pattern observed. 1,337 late orders in the late-handover group.
-- **From 25 April 2018:** the difference is large, but this period misses the 500-late-order part of the screening criterion, with 470 late orders in that group.
+- **From 25 April 2018:** the difference is large, but this period misses the 500-late-order part of the screening criterion, with 470 late orders in that group. The +18.13 points is above the 2-point part, so this isn't a small pattern, although the stored results file labels it "Small pattern, below the screening criterion" because that label also covers a missed order requirement. The estimates shouldn't be compared across the two periods.
 - **Limits:** this describes which stage is linked to lateness. It doesn't show who caused a delay, and nothing here is attributed to carriers. A late handover also leaves less of the promised time for later stages, so some link is expected from how lateness is measured. The cause of the 25 April change is unknown.
 
 **Plain reading:** orders handed over late are far more often late, but most late orders had an on-time handover.
@@ -486,9 +488,9 @@ The median promise is 24 days, and the median actual delivery is 10 days. 78.93%
 | B6 | 95,824 | 12,272 | 54 | 227.3 | 1547.3 | 6 | 36.9 | 0.26 | 0 of 500 |
 | B6 interaction | 95,824 | 12,272 | 55 | 223.1 | 1519.1 | 6 | 36.9 | 0.26 | 0 of 500 |
 
-- **Separation corrected (B4, before arrival).** All 3 multi-seller orders in this group have low ratings, so that term can't be estimated: its coefficient reached 17.31 after 23 iterations. The term was removed from this model only, because it carries no usable information there and left the model unstable. After the correction, the model needs 6 iterations, and its largest coefficient is 1.74. Band estimates moved by at most 0.03 points. Every other result was identical between runs.
+- **Separation corrected (B4, before arrival).** All 3 multi-seller orders in this group have low ratings, so that term can't be estimated: its coefficient reached 17.31 after 23 iterations. The term was removed from this model only, because it carries no usable information there and left the model unstable. After the correction, the model needs 6 iterations. Its largest coefficient is 1.02, or 1.74 if the intercept is included. Band estimates moved by at most 0.03 points. Every other result was identical between runs.
 - **Thin term kept (B4, after arrival).** The multi-seller term rests on 9 orders, with 6 low ratings and 3 others. Its coefficient is stable, so it's kept and reported.
-- **Sparse level remains (B4, before arrival).** The 3+ items level has 69 orders and 8 non-low ratings, below the rule of 10. The merging step relabels it as "other" without combining it, because item count has no other group to merge with. Merging it with the 2-item level changes the band differences by at most 0.04 points, so it has no practical effect and the approved model is kept.
+- **Sparse level remains (B4, before arrival).** The 3+ items level has 69 orders and 8 non-low ratings, below the rule of 10. The merging step relabels it as "other" without combining it, because item count has no other group to merge with. Merging it with the 2-item level changes the band differences by at most 0.04 points, so it has no practical effect and the approved model is kept. Sensitivity check X3d uses the same model and keeps the same level.
 - **Adjustment differences:** B6 leaves out item count, because that's its exposure. B4's two models use different adjustment sets, as noted above. B1, B7 and B4's unadjusted differences use no regression.
 - **Merged levels:** sparse early months in all models. In B4, state levels CE, DF and PE are merged after arrival, and DF before arrival.
 - **Reproducibility:** results come directly from the saved scripts, with a fixed seed.
@@ -503,5 +505,5 @@ The median promise is 24 days, and the median actual delivery is 10 days. 78.93%
 
 ## Next steps
 
-1. Run independent verification against SQL and the source CSVs (Step 8).
+1. Review the independent audit and its remediation, in [independent_audit.md](independent_audit.md).
 2. Review findings before developing recommendations (Step 9).

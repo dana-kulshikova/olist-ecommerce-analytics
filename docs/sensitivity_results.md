@@ -1,6 +1,6 @@
 # Sensitivity Results
 
-**Status: Step 7 results for review.** Primary Class A and Class B estimates, definitions, screening criteria and labels are unchanged. All results are observational associations, and independent verification (Step 8) hasn't been run. The robustness labels below have been approved.
+**Status: Step 7 results for review.** Primary Class A and Class B estimates, definitions, screening criteria and labels are unchanged. All results are observational associations. The independent audit (Step 8) is in [independent_audit.md](independent_audit.md), with a remediation addendum that lists open items. The robustness labels below have been approved, and the A6 and A7 wording was revised after the audit.
 
 Reproduced by `python/analysis/sensitivity.py` and `python/analysis/sensitivity_supplement.py`, which use `python/analysis/sensitivity_common.py`.
 
@@ -27,8 +27,8 @@ Ranges cover alternative estimates in percentage points. A1's label-deciding ran
 | A3 | Inconclusive | +42.10 | 39.85 to 45.44 | 32.27 to 42.05 | **Unresolved** |
 | A4 | Unsupported | +0.59 | 0.39 to 0.59 | −1.34 to 2.15 | **Robustly unsupported under the prespecified comparison** |
 | A5 | Supported, close to the criterion | +2.16 | 2.01 to 2.27 | 0.88 to 2.91 | **Sensitive; judgement incorporates an exploratory state-adjusted check** |
-| A6 | Detectable, not practically important | +6.97 | 6.32 to 7.14 | 3.40 to 7.41 | **Robustly below the practical-importance criterion; sensitive to peak-month selection** |
-| A7 | Detectable, not practically important | 3.69 | 3.23 to 3.75 | 2.93 to 3.70 | **Robustly below the practical-importance criterion; weaker statistical detectability under some restrictions** |
+| A6 | Detectable, not practically important | +6.97 | 6.32 to 7.14 | 3.40 to 7.41 | **Below the practical-importance criterion in all tested point estimates; uncertainty intervals sometimes reach the criterion** |
+| A7 | Detectable, not practically important | 3.69 | 3.23 to 3.75 | 2.93 to 3.70 | **Below the practical-importance criterion in all tested point estimates; uncertainty intervals reach the criterion** |
 
 | ID | Label-deciding runs | Direction reversed | Relation of interval to zero changed | Crossed the criterion |
 |---|---:|---:|---:|---:|
@@ -47,8 +47,8 @@ Ranges cover alternative estimates in percentage points. A1's label-deciding ran
 - **A3, unresolved.** The evidence label stays Inconclusive. The overall rise from 1–3 to 15+ days is stable across data-handling checks, but within answer-timing groups it mostly disappears: −2.42 points (−7.11 to 2.28) before arrival, and +4.84 points (−5.04 to 14.72) for 8–14 against 1–3 days after arrival. The drop at 15+ days also goes away when deliveries over 60 days are excluded (−0.66 points, −4.06 to 2.75). Timing and delay length are too closely linked to separate them here.
 - **A4, robustly unsupported under the prespecified comparison.** The estimate stays below the criterion, with an interval including zero, in every label-deciding run. Different-question checks are less settled: −1.34 points (−2.11 to −0.56) excluding peak months, and +2.15 points (1.13 to 3.16) excluding purchases from July 2018, which is above the criterion. This doesn't show that distance has no relationship with lateness across all periods, only that this fixed comparison adds little once state is known.
 - **A5, sensitive.** The Supported evidence label is preserved, and **this judgement incorporates an exploratory state-adjusted check**, as an explicit exception to the label-deciding rule. Under that rule alone, it would read as robust, but only just: estimates run from 2.01 to 2.27 against a 2-point criterion, and every interval straddles it. Adding customer state, an exploratory check, gives +0.97 points (−0.01 to 1.94), and excluding peak months gives +0.88 points (0.17 to 1.59). In the larger bootstrap, 66.0% of replicates reach the criterion. Freight may partly reflect destination and period, which the data can't settle.
-- **A6, robustly below the practical-importance criterion, and sensitive to peak-month selection.** The gap stays below 10 points in every run, with a split-half gap near 6 points. Excluding peak months, it falls to +3.40 points (−0.49 to 8.15), and its split-half gap of 2.20 is close to the 2.15 expected with no real seller differences. 7 sellers remain above the funnel limit in that run, so seller differences don't vanish entirely.
-- **A7, robustly below the practical-importance criterion, with weaker statistical detectability under some restrictions.** The spread stays below 5 points in every run. Statistical detectability is less stable: the joint test gives p = 0.054 when deliveries over 60 days are excluded, and the lowest-rate and highest-rate categories change when peak months are excluded.
+- **A6, below the practical-importance criterion in all tested point estimates; uncertainty intervals sometimes reach the criterion.** The gap stays below 10 points in every run, with a split-half gap near 6 points. Its interval reaches 10 points in the primary result (2.48 to 10.66), at 2,000 replicates (2.70 to 10.40) and in 4 of the 6 label-deciding runs. The result is also sensitive to peak-month selection: excluding peak months, it falls to +3.40 points (−0.49 to 8.15), and its split-half gap of 2.20 is close to the 2.15 expected with no real seller differences. 7 sellers remain above the funnel limit in that run, so seller differences don't vanish entirely.
+- **A7, below the practical-importance criterion in all tested point estimates; uncertainty intervals reach the criterion.** The spread stays below 5 points in every run. Its interval reaches 5 points in the primary result (2.88 to 6.90), at 2,000 replicates (3.03 to 6.32) and in all 8 label-deciding runs that have an interval. Statistical detectability is less stable: the joint test gives p = 0.054 when deliveries over 60 days are excluded, and the lowest-rate and highest-rate categories change when peak months are excluded.
 
 ## Exploratory findings under sensitivity testing (Class B)
 
@@ -56,7 +56,7 @@ These remain **exploratory**. Their stability doesn't make them confirmed.
 
 | ID | Finding | Primary estimate | Range across all runs | Assessment |
 |---|---|---:|---:|---|
-| B1 | Peak vs other months late rate | +10.69 | 9.76 to 11.60 | Stable, but the months were selected using the outcome |
+| B1 | Peak vs other months late rate | +10.68 | 9.76 to 11.60 | Stable, but the months were selected using the outcome |
 | B2 | Widening of RJ's gap in peak months | +20.42 | 18.11 to 21.69 | Stable; the gap in other months stays at 2.65 to 3.43 |
 | B3 | Late, answered before arrival, vs on time | +70.07 | 62.29 to 71.10 | Stable |
 | B3 | Late, answered after arrival, vs on time | +9.94 | 6.69 to 17.61 | Direction stable; size depends on definitions |
@@ -68,7 +68,7 @@ These remain **exploratory**. Their stability doesn't make them confirmed.
 
 ## Unexpected findings
 
-1. **B4 depends on how timing is defined.** Using the review answer timestamp, low ratings barely change between delay bands before the recorded delivery: 78.85%, 81.51%, 82.36% and 78.88%. Using review creation date (S9), they rise: 59.84%, 71.80%, 80.21% and 78.35%. Review creation date is when the survey record was created, and the answer timestamp is when the answer was recorded. A review created before delivery can have an answer recorded after it. **Neither is definitive evidence of when a customer formed or submitted the rating**, so the reading that delay length adds little can't be stated without this caveat.
+1. **B4 depends on how timing is defined.** Using the review answer timestamp, low ratings barely change between delay bands before the recorded delivery: 78.85%, 81.51%, 82.36% and 78.88%. Using review creation date (S9), they rise: 59.84%, 71.80%, 80.21% and 78.35%. Review creation date is when the survey record was created, and the answer timestamp is when the answer was recorded. A review created before delivery can have an answer recorded after it, and S9's later group includes reviews created on the delivery date. **Neither is definitive evidence of when a customer formed or submitted the rating**, so the reading that delay length adds little can't be stated without this caveat.
 2. **Seller concentration is largely a peak-month pattern.** Excluding peak months, the A6 split-half gap falls from 6.03 to 2.20 points, close to the 2.15 expected by chance.
 3. **Freight's association weakens with customer state.** A5 drops from +2.16 to +0.97 points, and its interval reaches zero. With state in the model, only the step from the lowest to the second quartile remains (+1.01 points, 0.33 to 1.70).
 4. **Distance changes sign with the period.** The A4 comparison is −1.34 points excluding peak months, and +2.15 points excluding purchases from July 2018.
@@ -131,7 +131,7 @@ This doesn't change the A5 definition or result.
 | ID | Estimate | 500 replicates | 2,000 replicates | Replicates reaching the criterion | Failed replicates |
 |---|---:|---:|---:|---:|---:|
 | A5 | +2.16 | 1.27 to 3.01 | 1.29 to 3.02 | 66.0% | 0 |
-| A6 | +6.96 | 2.48 to 10.66 | 2.70 to 10.40 | Not calculated | 0 |
+| A6 | +6.97 | 2.48 to 10.66 | 2.70 to 10.40 | Not calculated | 0 |
 | A7, re-selecting the pair | 3.69 | 2.88 to 6.90 | 3.03 to 6.32 | 25.8% | 0 |
 | A7, fixed pair (baby, luggage_accessories) | 3.69 | Not run | 1.52 to 5.92 | 12.3% | 0 |
 
@@ -217,8 +217,8 @@ Sensitivity intervals use errors clustered by seller with a delta-method interva
 | S4b | Timestamp | Affected orders excluded | 4-7 vs 1-3 days | 6,378 | 3,983 | +34.65 | 31.61 to 37.70 | −0.06 |
 | S4b | Timestamp | Affected orders excluded | 8-14 vs 4-7 days | 6,378 | 3,983 | +11.18 | 8.13 to 14.21 | −0.01 |
 | S4b | Timestamp | Affected orders excluded | 15+ vs 8-14 days | 6,378 | 3,983 | −3.81 | −7.17 to −0.44 | −0.01 |
-| S5b | Different question | 2 or more days late | 15+ vs 1-3 days | 5,561 | 3,822 | +32.27 | 28.20 to 36.35 | −9.83 |
-| S5b | Different question | 2 or more days late | 4-7 vs 1-3 days | 5,561 | 3,822 | +24.91 | 21.04 to 28.77 | −9.81 |
+| S5b | Different question | 2 or more days late | 15+ vs 2-3 days | 5,561 | 3,822 | +32.27 | 28.20 to 36.35 | −9.83 |
+| S5b | Different question | 2 or more days late | 4-7 vs 2-3 days | 5,561 | 3,822 | +24.91 | 21.04 to 28.77 | −9.81 |
 | S5b | Different question | 2 or more days late | 8-14 vs 4-7 days | 5,561 | 3,822 | +11.19 | 8.19 to 14.18 | +0.01 |
 | S5b | Different question | 2 or more days late | 15+ vs 8-14 days | 5,561 | 3,822 | −3.82 | −7.14 to −0.50 | −0.02 |
 | S8a | Different question | Excluding peak months | 15+ vs 1-3 days | 3,286 | 1,870 | +41.09 | 36.48 to 45.70 | −1.01 |
@@ -343,7 +343,7 @@ Sensitivity intervals use errors clustered by seller with a delta-method interva
 
 | Check | Type | Alternative | Comparison | Orders | Events | Estimate | 95% interval | Change |
 |---|---|---|---|---:|---:|---:|---:|---:|
-| S0 | Baseline | Primary specification | Top 10% late share minus order share | 56,579 | 3,909 | +6.96 | 2.45 to 9.98 | — |
+| S0 | Baseline | Primary specification | Top 10% late share minus order share | 56,579 | 3,909 | +6.97 | 2.45 to 9.98 | — |
 | S3a | Timestamp | All flagged orders excluded | Top 10% late share minus order share | 56,303 | 3,894 | +6.32 | 2.05 to 10.19 | −0.64 |
 | S3b | Timestamp | Only delivery-before-carrier excluded | Top 10% late share minus order share | 56,575 | 3,909 | +6.97 | 2.89 to 9.95 | +0.00 |
 | S3c | Timestamp | Only carrier-before-purchase excluded | Top 10% late share minus order share | 56,307 | 3,894 | +6.32 | 2.76 to 9.89 | −0.65 |
@@ -373,14 +373,14 @@ Sensitivity intervals use errors clustered by seller with a delta-method interva
 | S11a | Structure | First item's category | Spread: baby vs luggage_accessories | 83,515 | 5,761 | +3.75 | 1.61 to 5.88 | +0.06 |
 | S11b | Structure | Excluding unknown category | Spread: baby vs luggage_accessories | 83,514 | 5,760 | +3.69 | 1.58 to 5.80 | +0.00 |
 | S15 | Timestamp | Excluding deliveries over 60 days | Spread: baby vs luggage_accessories | 83,246 | 5,496 | +3.23 | 1.11 to 5.35 | −0.46 |
-| S13a | Structure | Linear probability model | Spread: baby vs luggage_accessories | 83,514 | 5,760 | +3.25 | 3.25 to 3.25 | −0.44 |
+| S13a | Structure | Linear probability model | Spread: baby vs luggage_accessories | 83,514 | 5,760 | +3.25 | Not estimated | −0.44 |
 | S13b | Structure | Heteroskedasticity-robust errors, not clustered | Spread: baby vs luggage_accessories | 83,514 | 5,760 | +3.69 | 1.95 to 5.43 | +0.00 |
 
 ### B1. Peak months (exploratory)
 
 | Check | Type | Alternative | Comparison | Orders | Events | Estimate | 95% interval | Change |
 |---|---|---|---|---:|---:|---:|---:|---:|
-| S0 | Baseline | Primary specification | Peak vs other months late rate | 96,470 | 6,534 | +10.69 | Not available | — |
+| S0 | Baseline | Primary specification | Peak vs other months late rate | 96,470 | 6,534 | +10.68 | Not available | — |
 | S3a | Timestamp | All flagged orders excluded | Peak vs other months late rate | 96,281 | 6,531 | +10.68 | Not available | −0.01 |
 | S4b | Timestamp | Affected orders excluded | Peak vs other months late rate | 96,446 | 6,531 | +10.69 | Not available | +0.00 |
 | S5a | Different question | Full timestamp, previous logic | Peak vs other months late rate | 96,470 | 7,826 | +11.60 | Not available | +0.92 |
@@ -455,7 +455,7 @@ Sensitivity intervals use errors clustered by seller with a delta-method interva
 | S8c | Different question | Excluding purchases from July 2018 | B3 before | 83,376 | 11,076 | +70.52 | 69.08 to 71.96 | +0.45 |
 | S8c | Different question | Excluding purchases from July 2018 | B3 after | 83,376 | 11,076 | +10.06 | 8.30 to 11.81 | +0.12 |
 | S9 | Different question | Survey creation date instead of answer timestamp | B3 before | 95,824 | 12,272 | +64.19 | 62.74 to 65.64 | −5.88 |
-| S9 | Different question | Survey creation date instead of answer timestamp | B3 after | 95,824 | 12,272 | +15.59 | 13.56 to 17.61 | +5.65 |
+| S9 | Different question | Survey creation date instead of answer timestamp | B3 after, created on or after the delivery date | 95,824 | 12,272 | +15.59 | 13.56 to 17.61 | +5.65 |
 | S15 | Timestamp | Excluding deliveries over 60 days | B3 before | 95,541 | 12,086 | +71.10 | 69.65 to 72.55 | +1.03 |
 | S15 | Timestamp | Excluding deliveries over 60 days | B3 after | 95,541 | 12,086 | +9.95 | 8.35 to 11.55 | +0.01 |
 | S16 | Review | Excluding reviews created before the purchase date | B3 before | 95,821 | 12,270 | +70.08 | 68.63 to 71.52 | +0.00 |
@@ -577,12 +577,16 @@ Rates are unadjusted. Under 30 reviews isn't reported.
 | S8b | Excluding 2016 | after arrival | 18.61% (n=1,435) | 20.45% (n=396) | 26.32% (n=57) | Not reported (n=19) |
 | S8c | Excluding purchases from July 2018 | before arrival | 81.20% (n=367) | 81.69% (n=1,207) | 82.99% (n=1,317) | 79.39% (n=1,276) |
 | S8c | Excluding purchases from July 2018 | after arrival | 19.82% (n=1,211) | 19.71% (n=350) | 25.49% (n=51) | Not reported (n=17) |
-| S9 | Survey creation date instead of answer timestamp | before arrival | 59.84% (n=386) | 71.80% (n=1,585) | 80.21% (n=1,445) | 78.35% (n=1,335) |
-| S9 | Survey creation date instead of answer timestamp | after arrival | 24.83% (n=1,466) | 27.61% (n=163) | Not reported (n=1) | Not reported (n=0) |
+| S9 | Survey creation date instead of answer timestamp | before delivery date | 59.84% (n=386) | 71.80% (n=1,585) | 80.21% (n=1,445) | 78.35% (n=1,335) |
+| S9 | Survey creation date instead of answer timestamp | on or after delivery date | 24.83% (n=1,466) | 27.61% (n=163) | Not reported (n=1) | Not reported (n=0) |
 | S15 | Excluding deliveries over 60 days | before arrival | 78.85% (n=416) | 81.50% (n=1,351) | 82.47% (n=1,386) | 81.91% (n=1,045) |
 | S15 | Excluding deliveries over 60 days | after arrival | 18.61% (n=1,435) | 20.45% (n=396) | 26.32% (n=57) | Not reported (n=15) |
 | S16 | Excluding reviews created before the purchase date | before arrival | 78.85% (n=416) | 81.51% (n=1,352) | 82.36% (n=1,389) | 78.88% (n=1,316) |
 | S16 | Excluding reviews created before the purchase date | after arrival | 18.59% (n=1,436) | 20.45% (n=396) | 26.32% (n=57) | Not reported (n=19) |
+
+**S5b band:** under "2 or more days late", the 1–3 days column contains only orders 2–3 days late.
+
+**S9 groups use calendar dates.** "Before delivery date" means the review was created on an earlier date than the delivery. "On or after delivery date" includes reviews created on the delivery date itself, so 198 late reviews in this group have an answer timestamp before the recorded delivery. Creation date is also closely tied to delay length: 20.8%, 90.7%, 99.9% and 100% of late reviews in the four delay bands were created before the delivery date, so the later group has almost no reviews beyond 7 days late. Neither definition shows when a customer formed or submitted a rating.
 
 | Check | Alternative | Timing | Comparison | Difference | 95% interval |
 |---|---|---|---|---:|---:|
@@ -621,10 +625,10 @@ Rates are unadjusted. Under 30 reviews isn't reported.
 | S5a | Full timestamp, previous logic | before arrival | 15+ days vs 8-14 days | −3.49 | −6.60 to −0.38 |
 | S5a | Full timestamp, previous logic | after arrival | 4-7 days vs 1-3 days | +1.86 | −2.59 to 6.31 |
 | S5a | Full timestamp, previous logic | after arrival | 8-14 days vs 4-7 days | +5.86 | −6.13 to 17.85 |
-| S5b | 2 or more days late | before arrival | 4-7 days vs 1-3 days | +2.27 | −2.33 to 6.86 |
+| S5b | 2 or more days late | before arrival | 4-7 days vs 2-3 days | +2.27 | −2.33 to 6.86 |
 | S5b | 2 or more days late | before arrival | 8-14 days vs 4-7 days | +0.85 | −1.79 to 3.49 |
 | S5b | 2 or more days late | before arrival | 15+ days vs 8-14 days | −3.49 | −6.60 to −0.38 |
-| S5b | 2 or more days late | after arrival | 4-7 days vs 1-3 days | +1.46 | −3.57 to 6.49 |
+| S5b | 2 or more days late | after arrival | 4-7 days vs 2-3 days | +1.46 | −3.57 to 6.49 |
 | S5b | 2 or more days late | after arrival | 8-14 days vs 4-7 days | +5.86 | −6.14 to 17.86 |
 | S6a | 1 star only | before arrival | 4-7 days vs 1-3 days | +3.81 | −1.25 to 8.87 |
 | S6a | 1 star only | before arrival | 8-14 days vs 4-7 days | +0.97 | −2.21 to 4.15 |
@@ -651,10 +655,10 @@ Rates are unadjusted. Under 30 reviews isn't reported.
 | S8c | Excluding purchases from July 2018 | before arrival | 15+ days vs 8-14 days | −3.60 | −6.75 to −0.46 |
 | S8c | Excluding purchases from July 2018 | after arrival | 4-7 days vs 1-3 days | −0.10 | −4.79 to 4.58 |
 | S8c | Excluding purchases from July 2018 | after arrival | 8-14 days vs 4-7 days | +5.78 | −6.69 to 18.25 |
-| S9 | Survey creation date instead of answer timestamp | before arrival | 4-7 days vs 1-3 days | +11.95 | 6.65 to 17.26 |
-| S9 | Survey creation date instead of answer timestamp | before arrival | 8-14 days vs 4-7 days | +8.41 | 5.46 to 11.36 |
-| S9 | Survey creation date instead of answer timestamp | before arrival | 15+ days vs 8-14 days | −1.86 | −5.04 to 1.33 |
-| S9 | Survey creation date instead of answer timestamp | after arrival | 4-7 days vs 1-3 days | +2.78 | −4.64 to 10.20 |
+| S9 | Survey creation date instead of answer timestamp | before delivery date | 4-7 days vs 1-3 days | +11.95 | 6.65 to 17.26 |
+| S9 | Survey creation date instead of answer timestamp | before delivery date | 8-14 days vs 4-7 days | +8.41 | 5.46 to 11.36 |
+| S9 | Survey creation date instead of answer timestamp | before delivery date | 15+ days vs 8-14 days | −1.86 | −5.04 to 1.33 |
+| S9 | Survey creation date instead of answer timestamp | on or after delivery date | 4-7 days vs 1-3 days | +2.78 | −4.64 to 10.20 |
 | S15 | Excluding deliveries over 60 days | before arrival | 4-7 days vs 1-3 days | +2.65 | −1.87 to 7.16 |
 | S15 | Excluding deliveries over 60 days | before arrival | 8-14 days vs 4-7 days | +0.97 | −1.68 to 3.62 |
 | S15 | Excluding deliveries over 60 days | before arrival | 15+ days vs 8-14 days | −0.55 | −3.65 to 2.55 |
@@ -746,7 +750,7 @@ Rates are unadjusted. Under 30 reviews isn't reported.
 - **Bootstrap failures:** 0 in the 2,000-replicate model bootstraps.
 - **Baseline:** re-fitting each primary model reproduces its primary estimate. Delta-method intervals are close to the primary bootstrap intervals, except A7, where the bootstrap re-selects the extreme pair.
 - **Thin term:** the multi-seller term in all A3 models rests on few orders with fewer than 5 events or non-events. Its coefficient is stable, and it's kept as defined.
-- **Sparse levels, reported and kept:** distance levels in X1a and X1c, and 3+ items in X3d.
+- **Sparse levels, reported and kept:** distance levels in X1a and X1c, and 3+ items in X3d. Each is relabelled "other" without being combined with another level.
 - **Specification differences, stated in each run:** the same-state term is removed where it can't be estimated (X1a, X1b, X1c), the multi-seller term in X3d, and category in X3e. Failed or awkward runs weren't dropped.
 - **S13a for A7:** the linear model gives a point estimate only, with no interval for the selected pair.
 
@@ -756,10 +760,10 @@ Rates are unadjusted. Under 30 reviews isn't reported.
 - **Analytical choices are bounded:** other reasonable choices exist that weren't tested.
 - **No correction across sensitivity runs:** intervals and p-values in sensitivity runs are unadjusted.
 - **Delta-method intervals:** these are approximations, and they ignore selection of the extreme pair in A7.
-- **Exploratory checks influence one label:** A5's proposed label draws on the exploratory state check, and the reasoning is stated above.
+- **Exploratory checks influence one label:** A5's label draws on the exploratory state check, and the reasoning is stated above.
 - **Review timestamps:** answer timing is self-selected and closely linked to delay length. Neither the answer timestamp nor the creation date is definitive evidence of when a customer formed or submitted a rating, and the two give different pictures for B4.
 - **Peak months:** they were selected using the outcome, so S8a results also reflect that choice.
-- **Independent verification hasn't been run.**
+- **Independent audit:** see [independent_audit.md](independent_audit.md), including the checks it didn't recompute.
 
 ## Hypothesis log
 

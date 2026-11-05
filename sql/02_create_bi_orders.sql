@@ -2,6 +2,7 @@
 -- Database: PostgreSQL (ecommerce_bi). Grain: one row per order_id.
 -- This is the original project script. Its logic matches the live view, confirmed
 -- with pg_get_viewdef('public.bi_orders', true).
+-- Publication edit: removed a leftover read-only timestamp diagnostic that followed the view.
 -- A missing date makes the CASE condition NULL, so it falls to ELSE FALSE.
 -- Delivered-status filtering happens in the Power BI measures, not here.
 
@@ -48,15 +49,3 @@ FROM public.olist_orders_dataset o
 LEFT JOIN public.olist_customers_dataset c ON o.customer_id=c.customer_id
 LEFT JOIN items i ON o.order_id=i.order_id
 LEFT JOIN payments p ON o.order_id=p.order_id;
-
-SELECT
-(SELECT COUNT(*) FROM public.olist_orders_dataset
-WHERE (order_purchase_timestamp >= '2017-03-26 02:00' AND order_purchase_timestamp < '2017-03-26 03:00')
-OR (order_purchase_timestamp >= '2018-03-25 02:00' AND order_purchase_timestamp < '2018-03-25 03:00')) AS purchase_in_missing_hour,
-(SELECT COUNT(*) FROM public.olist_orders_dataset
-WHERE (order_approved_at >= '2017-03-26 02:00' AND order_approved_at < '2017-03-26 03:00')
-OR (order_approved_at >= '2018-03-25 02:00' AND order_approved_at < '2018-03-25 03:00')) AS approved_in_missing_hour,
-(SELECT order_purchase_timestamp::text FROM public.olist_orders_dataset
-WHERE order_id = 'afc1e4183307b101e5e2dbdd876a213f') AS control_order_purchase,
-('2018-03-25 02:56:02'::timestamp)::text AS literal_as_text,
-'2018-03-25 02:56:02'::timestamp AS literal_as_timestamp;

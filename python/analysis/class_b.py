@@ -33,6 +33,7 @@ def pattern(estimate, ci, criterion, orders_ok=True):
         return "Pattern observed"
     if ci[1] < 0 and -estimate >= criterion and orders_ok:
         return "Pattern observed, opposite direction"
+    # This text also covers a large estimate that misses only the late-order requirement (B5 from 25 April 2018).
     if ci[0] > 0 or ci[1] < 0:
         return "Small pattern, below the screening criterion"
     return "Not observed"

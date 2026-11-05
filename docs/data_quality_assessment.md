@@ -104,7 +104,7 @@ Every timestamp difference is exactly +60 minutes, on a value inside the missing
 | Carrier before approval | 1,350 delivered orders | Keep; don't calculate approval-to-carrier time |
 | Delivery before approval | 61 delivered orders | Keep; no late-status effect |
 | Approval missing | 14 delivered orders | Keep; approval isn't used in late status |
-| Delivery over 60 days | 288 delivered orders | Keep, and test their influence |
+| Delivery over 60 days, in calendar days from purchase | 298 delivered orders | Keep, and test their influence |
 | Orders with several reviews | 547; 202 with differing scores, 96 changing low-rating status | Latest answered, with earliest as a sensitivity check |
 | Review IDs on several rows | 789 IDs, 1,603 rows | Keep, and test excluding them |
 | Reviews created before the purchase date | 64 | Keep, and test excluding them |

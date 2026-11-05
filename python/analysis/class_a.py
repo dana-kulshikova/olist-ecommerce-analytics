@@ -79,7 +79,7 @@ def merge_months(frame, outcome):
 
 
 def collapse_sparse(frame, column, outcome):
-    """Merges sparse covariate levels into 'other', and reports them."""
+    """Relabels sparse covariate levels as 'other', and reports them. A lone sparse level is only renamed, so it stays separate."""
     table = frame.groupby(column)[outcome].agg(["size", "sum"])
     sparse = table[(table["size"] < MIN_ORDERS) | (table["sum"] < MIN_EVENTS) | (table["size"] - table["sum"] < MIN_EVENTS)]
     if sparse.empty:

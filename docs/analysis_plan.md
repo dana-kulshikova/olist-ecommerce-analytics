@@ -80,7 +80,7 @@ The steps and review points are in `methodology.md`. Class A results are locked 
 These are run and recorded before any adjusted estimate is interpreted:
 
 - **Sample sizes:** orders and events (late orders or low ratings) for each group, and overall events per model term.
-- **Sparse groups:** any group with under 30 orders or under 10 events is merged as above, or dropped from the adjustment, and this is reported.
+- **Sparse groups:** any group with under 30 orders, under 10 events or under 10 non-events is merged as above, or dropped from the adjustment, and this is reported. Sparse covariate levels are relabelled "other", so when only one level is sparse it's renamed without being combined and stays in the model. These cases are reported.
 - **Overlap:** whether the compared groups share the same distance bands and periods. This matters for A1 in particular.
 - **Convergence and separation:** the model must converge, with no coefficient or standard error at an implausible size.
 - **Related predictors:** variance inflation is checked for predictors likely to overlap, such as items, sellers and order value.

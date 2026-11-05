@@ -1,8 +1,8 @@
 # Methodology
 
-**Status: approved plan. The main analysis hasn't been run yet.**
+**Status: approved plan. The main analysis, sensitivity analyses and independent audit (Steps 0–8) have been run. Step 9, recommendations, hasn't started.**
 
-This document explains how the case study reaches its conclusions and how much weight they can bear. The exact hypothesis definitions and statistical details are in [analysis_plan.md](analysis_plan.md), and results will be recorded in `hypothesis_log.md`.
+This document explains how the case study reaches its conclusions and how much weight they can bear. The exact hypothesis definitions and statistical details are in [analysis_plan.md](analysis_plan.md), and results are recorded in `hypothesis_log.md`.
 
 ## The question
 
@@ -58,10 +58,12 @@ Each finding is judged on two separate questions.
 
 | Label | Meaning |
 |---|---|
-| **Supported** | The effect is in the predicted direction, its 95% confidence interval excludes zero, it holds after correcting for multiple tests, and it meets the practical screening criterion |
-| **Detectable, not practically important** | The effect is statistically clear, but below the screening criterion |
-| **Unsupported** | The effect is absent, in the opposite direction, or its whole interval lies below the criterion |
-| **Inconclusive** | The evidence is too uncertain to judge |
+| **Supported** | The effect is in the predicted direction, its 95% confidence interval excludes zero, it holds after correcting for multiple tests, and its point estimate meets the practical screening criterion, including any late-order requirement |
+| **Detectable, not practically important** | The interval is above zero and the effect holds after correction, but the point estimate is below the screening criterion or the late-order requirement isn't met |
+| **Unsupported** | The point estimate is zero or in the opposite direction, or the interval includes zero and the point estimate is below the criterion |
+| **Inconclusive** | Any other result, such as an interval that includes zero with a point estimate at or above the criterion, or an interval above zero that doesn't hold after correction |
+
+Each result receives one label. A3 uses its own rule because it compares several steps: Supported if the trend holds after correction and every adjacent step has an interval above zero and meets the criterion; Unsupported if the 15+ against 1–3 day estimate is zero or negative, or the trend doesn't hold after correction; otherwise Inconclusive.
 
 **2. How much does it depend on reasonable analytical choices?**
 
@@ -123,7 +125,7 @@ The exact expressions for each tool are in [analysis_plan.md](analysis_plan.md#m
 | Category | The highest-priced item's category. Blank and NULL values are both treated as `unknown` in Python |
 | Distance | Approximate straight-line distance between ZIP-prefix positions, not route distance |
 | Customers or sellers with no ZIP position | Leave out of distance analysis, and report how many (279 customers, 7 sellers) |
-| Deliveries over 60 days (288 orders) | Keep them, since they may be real delays, and test their influence |
+| Deliveries over 60 days, counted in calendar days from purchase (298 orders) | Keep them, since they may be real delays, and test their influence |
 | Reviews created before the purchase date (64) | Keep them, and test excluding them |
 | Small groups | Sellers need at least 100 orders to be ranked. Groups under 30 aren't reported |
 | Data source | PostgreSQL read-only exports are primary, cross-checked against the source CSVs |
@@ -179,12 +181,14 @@ The cause is unknown. The data can't show whether this reflects recording system
 
 ## Order of work
 
-**Completed**
+**Completed before the main analysis**
 
 1. Investigate the 197 flagged orders from the source CSVs.
 2. Build the read-only SQL dataset, export it, reproduce the KPI figures exactly, and compare stored values with the source CSVs (see [data_quality_assessment.md](data_quality_assessment.md)).
 
 **Main analysis**
+
+Steps 0–8 have been run. Step 9 hasn't started.
 
 | Step | Work | Review |
 |---|---|---|
@@ -230,3 +234,6 @@ Any change after approval is listed here with its date and reason, including whe
 | 2026-11-05 | Set A5's robustness label to Sensitive using an exploratory state-adjusted check, as an explicit exception to the label-deciding rule. A5's Supported evidence label is unchanged | The check halves the estimate, so the formal rule alone would overstate its stability | Yes: sensitivity results |
 | 2026-11-05 | Defined the extreme-distance check (S10) as above the 99th percentile | The plan left this threshold open | Set before the sensitivity results were seen |
 | 2026-11-05 | Added handling for ZIP positions, deliveries over 60 days and reviews created before purchase, with related sensitivity checks | Data quality checks identified these cases | Yes: data quality counts, no main analysis results |
+| 2026-11-05 | Corrected the count of deliveries over 60 days from 288 to 298. The S15 check already used the correct orders | The independent audit found the stated count was wrong | Yes: audit and all results. No result changed |
+| 2026-11-05 | Rewrote the evidence-label definitions to match the rule the code has applied throughout, because "Unsupported" overlapped with "Detectable". No label changed | The independent audit found the overlap | Yes: all results. Applied rule and labels unchanged |
+| 2026-11-05 | Revised the A6 and A7 robustness wording to separate point estimates from uncertainty intervals. Evidence labels, estimates, intervals and criteria are unchanged | The audit found A5's intervals straddling its criterion counted toward caution, while A6 and A7 were called robustly below theirs | Yes: all results |
