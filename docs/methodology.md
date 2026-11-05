@@ -164,6 +164,7 @@ The cause is unknown. The data can't show whether this reflects recording system
 ## Known limitations
 
 - **Reviewers may differ from non-reviewers**, and answering after arrival is itself selective.
+- **Review timestamps aren't definitive.** Neither the answer timestamp nor the creation date shows when a customer formed or submitted a rating, or whether they had received the order.
 - **Undelivered orders are excluded**, though cancellations and non-delivery may be the worst experiences.
 - **Lateness depends on the promise.** A longer estimate makes an order less likely to count as late.
 - **One marketplace, one period.** Results may not generalise beyond 2016–2018 or to other marketplaces.
@@ -226,4 +227,6 @@ Any change after approval is listed here with its date and reason, including whe
 | 2026-11-05 | Recorded how A3's criterion was applied: every adjacent step must meet it. No definition or criterion changed | The plan didn't say how to combine adjacent bands. The code applied the strict reading before results were seen | Documented after Class A results were known |
 | 2026-11-05 | Added an exploratory A5 check with customer state at step 7. The original A5 model and result are unchanged | Class A results raised the possibility that freight partly reflects destination | Yes: Class A results |
 | 2026-11-05 | Removed the multi-seller term from the B4 before-arrival model only. No Class A result is affected | All 3 multi-seller orders in that group have low ratings, so the term is separated and can't be estimated | Yes: exploratory model checks |
+| 2026-11-05 | Set A5's robustness label to Sensitive using an exploratory state-adjusted check, as an explicit exception to the label-deciding rule. A5's Supported evidence label is unchanged | The check halves the estimate, so the formal rule alone would overstate its stability | Yes: sensitivity results |
+| 2026-11-05 | Defined the extreme-distance check (S10) as above the 99th percentile | The plan left this threshold open | Set before the sensitivity results were seen |
 | 2026-11-05 | Added handling for ZIP positions, deliveries over 60 days and reviews created before purchase, with related sensitivity checks | Data quality checks identified these cases | Yes: data quality counts, no main analysis results |

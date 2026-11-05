@@ -1,34 +1,46 @@
 # Hypothesis Log
 
-Results recorded under the plan in [analysis_plan.md](analysis_plan.md) and [methodology.md](methodology.md). Results are reproduced by `python/analysis/build_dataset.py` and `python/analysis/class_a.py`.
+Results recorded under the plan in [analysis_plan.md](analysis_plan.md) and [methodology.md](methodology.md). Class A results are reproduced by `python/analysis/build_dataset.py` and `python/analysis/class_a.py`. Sensitivity results are in [sensitivity_results.md](sensitivity_results.md).
 
 ## Status
 
 | Item | Status |
 |---|---|
-| Class A statistical evidence | Complete, and **provisional** |
-| Robustness (16 sensitivity analyses) | **Not yet assessed** |
-| Class B exploratory questions | Complete, **exploratory**, and not yet tested for robustness |
+| Class A statistical evidence | Complete. Evidence labels are unchanged by sensitivity testing, and **provisional** until independent verification |
+| Robustness (16 sensitivity analyses) | Assessed; see the robustness section below |
+| Class B exploratory questions | Complete and sensitivity-tested; still **exploratory** |
 | Class C descriptive context | Complete |
 | Independent cross-check of results | Not yet run |
 
-**How to read this log.** A label here describes what the primary analysis shows. It doesn't say whether the finding holds under other reasonable choices, because that hasn't been tested. All results are observational associations, not causal effects. The data was also previewed before the plan was written, so no result is fully independent confirmation. Screening criteria are researcher-defined, not business-validated targets.
+**How to read this log.** An evidence label describes what the primary analysis shows. Robustness is a separate judgement about whether the conclusion holds under other reasonable choices. Neither one shows a cause. All results are observational associations, not causal effects. The data was also previewed before the plan was written, so no result is fully independent confirmation. Screening criteria are researcher-defined, not business-validated targets.
 
 ## Class A summary
 
 | ID | Question | Adjusted effect | 95% interval | Holm p | Screening criterion | Provisional label | Robustness |
 |---|---|---:|---:|---:|---:|---|---|
-| A1 | RJ against SP late rate | +7.46 points | 5.88 to 9.13 | 4.28e-26 | 2 points, 500+ late orders | Supported | Not assessed |
-| A2 | Late against on-time low ratings | +51.04 points | 49.58 to 52.28 | Below 1e-300 | 5 points | Supported | Not assessed |
-| A3 | Longer delays and low ratings | +42.10 points (15+ against 1–3 days) | 39.04 to 45.22 | 2.79e-121 | 5 points between each adjacent band | Inconclusive | Not assessed |
-| A4 | 600–1,000 km against 0–100 km late rate | +0.59 points | −0.49 to 1.50 | 0.257 | 2 points, 500+ late orders | Unsupported | Not assessed |
-| A5 | Highest against lowest freight quartile late rate | +2.16 points | 1.27 to 3.01 | 3.20e-06 | 2 points, 500+ late orders | Supported, close to the criterion | Not assessed |
-| A6 | Top 10% of sellers: late share minus order share | +6.97 points | 2.48 to 10.66 | 0.0006 | 10 points | Detectable, not practically important | Not assessed |
-| A7 | Spread between categories' late rates | 3.69 points | 2.88 to 6.90 | 0.0201 | 5 points | Detectable, not practically important | Not assessed |
+| A1 | RJ against SP late rate | +7.46 points | 5.88 to 9.13 | 4.28e-26 | 2 points, 500+ late orders | Supported | Robust |
+| A2 | Late against on-time low ratings | +51.04 points | 49.58 to 52.28 | Below 1e-300 | 5 points | Supported | Robust as an observational association; answer timing is an important limitation |
+| A3 | Longer delays and low ratings | +42.10 points (15+ against 1–3 days) | 39.04 to 45.22 | 2.79e-121 | 5 points between each adjacent band | Inconclusive | Unresolved |
+| A4 | 600–1,000 km against 0–100 km late rate | +0.59 points | −0.49 to 1.50 | 0.257 | 2 points, 500+ late orders | Unsupported | Robustly unsupported under the prespecified comparison |
+| A5 | Highest against lowest freight quartile late rate | +2.16 points | 1.27 to 3.01 | 3.20e-06 | 2 points, 500+ late orders | Supported, close to the criterion | Sensitive; judgement incorporates an exploratory state-adjusted check |
+| A6 | Top 10% of sellers: late share minus order share | +6.97 points | 2.48 to 10.66 | 0.0006 | 10 points | Detectable, not practically important | Robustly below the practical-importance criterion; sensitive to peak-month selection |
+| A7 | Spread between categories' late rates | 3.69 points | 2.88 to 6.90 | 0.0201 | 5 points | Detectable, not practically important | Robustly below the practical-importance criterion; weaker statistical detectability under some restrictions |
 
 Holm correction covers these seven tests. A2's raw p-value is too small for the software to represent, so it's shown as below 1e-300.
 
-**Flagged for a higher-replication bootstrap:** A5, A6 and A7, because their intervals straddle the screening criterion. A7's Holm p-value also lies between 0.01 and 0.10. A4's interval includes zero, so it was flagged automatically, but its upper limit is clearly below the criterion, so a re-check is low priority.
+**Higher-replication bootstrap:** A5, A6 and A7 were flagged because their intervals straddle the screening criterion, and A7's Holm p-value also lies between 0.01 and 0.10. At 2,000 replicates, their intervals still straddle the criteria: A5 1.29 to 3.02, A6 2.70 to 10.40, and A7 3.03 to 6.32. A4's interval includes zero, so it was flagged automatically, but its upper limit is clearly below the criterion, so it wasn't re-run.
+
+## Robustness assessment (Step 7)
+
+Full results are in [sensitivity_results.md](sensitivity_results.md). Evidence labels, estimates, definitions and screening criteria above are unchanged. Robustness labels are judgements about analytical choices, and they don't turn any association into a cause.
+
+- **A1, robust.** RJ stays higher in every run. The required SP-seller and overlap checks give larger gaps, from +8.92 to +9.46 points. Excluding peak months gives +3.57 points (2.54 to 4.60), so the size depends on the period and the direction doesn't.
+- **A2, robust as an observational association.** Data-handling choices barely move the estimate. Review answer timing is an important interpretive limitation: the difference is +10.01 points (8.40 to 11.62) when late reviews have an answer timestamp after the recorded delivery, and +69.98 points (68.53 to 71.42) when it's before. This doesn't measure the effect of lateness on satisfaction.
+- **A3, unresolved.** The evidence label stays Inconclusive. The overall rise is stable across data-handling checks, but within answer-timing groups it's −2.42 points (−7.11 to 2.28) before recorded delivery, and +4.84 points (−5.04 to 14.72) for 8–14 against 1–3 days after it. Survey creation date gives a different picture (see B4). Timing and delay length are too closely linked to separate here.
+- **A4, robustly unsupported under the prespecified comparison.** The 600–1,000 km against 0–100 km estimate stays below the criterion, with an interval including zero, in every label-deciding run. **This doesn't show that distance has no relationship with lateness.** The comparison gives −1.34 points (−2.11 to −0.56) excluding peak months and +2.15 points (1.13 to 3.16) excluding purchases from July 2018, and the 2,000+ km band is +2.52 points (0.22 to 4.82) against 0–100 km.
+- **A5, sensitive.** The Supported evidence label is preserved. **This robustness judgement incorporates an exploratory state-adjusted check**, which is outside the label-deciding rule, and it's a judgement call. Label-deciding checks alone stay just above the criterion, but adding customer state gives +0.97 points (−0.01 to 1.94), and excluding peak months gives +0.88 points (0.17 to 1.59). In the larger bootstrap, 66.0% of replicates reach the criterion.
+- **A6, robustly below the practical-importance criterion, and sensitive to peak-month selection.** The gap stays below 10 points in every run. Excluding peak months gives +3.40 points (−0.49 to 8.15), and its split-half gap of 2.20 is close to the 2.15 expected with no real seller differences. 7 sellers remain above the funnel limit in that run.
+- **A7, robustly below the practical-importance criterion, with weaker statistical detectability under some restrictions.** The spread stays below 5 points in every run. The joint test is p = 0.010 in the baseline, and p = 0.054 when deliveries over 60 days are excluded. The extreme categories also change when peak months are excluded.
 
 ## Results by question
 
@@ -41,7 +53,7 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 
 - **Adjusted risk difference:** +7.46 points (5.88 to 9.13). **Odds ratio:** 2.99 (2.45 to 3.66).
 - **Practical significance:** the whole interval is above the 2-point criterion, with 1,484 late RJ orders in the sample.
-- **Limited overlap:** only 7.8% of RJ orders have an in-state seller, compared with 76.0% of SP orders. Their distances also differ, as the table below shows. The model therefore relies on its assumptions where RJ and SP orders look little alike. **The planned check restricted to SP sellers and overlapping distance bands is required before this finding can be treated as robust.**
+- **Limited overlap:** only 7.8% of RJ orders have an in-state seller, compared with 76.0% of SP orders. Their distances also differ, as the table below shows. The model therefore relies on its assumptions where RJ and SP orders look little alike. The planned check restricted to SP sellers and overlapping distance bands has now run; see the robustness section.
 
 | Distance | RJ orders | SP orders |
 |---|---:|---:|
@@ -69,10 +81,10 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 - **Adjusted risk difference:** +51.04 points (49.58 to 52.28). **Odds ratio:** 17.00 (15.67 to 18.45).
 - **Adjusted mean score difference:** −1.98 (−2.03 to −1.93), which exceeds the 0.25-point criterion.
 - **Practical significance:** the whole interval is far above the 5-point criterion.
-- **Possible answer-timing bias:** the feasibility scan suggested that many reviews on late orders were answered before the order arrived. This result can therefore mix two situations: customers still waiting for an order, and customers rating an order received late. It shouldn't be read as the effect of a late delivery on how customers rate a received order. The split by answer timing is B3, which hasn't run.
+- **Possible answer-timing bias:** many reviews on late orders have an answer timestamp before the recorded delivery. This result can therefore mix reviews recorded before and after delivery. It shouldn't be read as the effect of a late delivery on how customers rate a received order. The split by answer timing is B3.
 - **Selection:** results cover reviewed orders only, and undelivered orders are excluded.
 
-**Plain reading:** lateness and low ratings go together strongly, but this figure may overstate the link for customers who had already received their order.
+**Plain reading:** lateness and low ratings go together strongly, but this figure mixes reviews recorded before and after delivery, so it may overstate the link for reviews recorded after delivery.
 
 ### A3. Longer delays and low ratings
 
@@ -92,10 +104,10 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 
 - **Trend across ordered bands:** odds ratio 2.05 per band, Holm p 2.79e-121.
 - **Non-monotonic pattern:** low ratings rise sharply through 8–14 days, then don't continue rising. The prediction of progressively worse ratings fails at the final step, so the label is **Inconclusive** under the strict criterion that every adjacent step must meet it. The clear overall rise isn't in doubt, but the "keeps getting worse" pattern isn't shown.
-- **Interpretation limit:** the longest delays may have more reviews answered before arrival, so this pattern may partly reflect answer timing. B4 will look at this.
+- **Interpretation limit:** the longest delays may have more reviews answered before arrival, so this pattern may partly reflect answer timing. B4 looks at this, and the result stays unresolved.
 - **Selection:** this analysis uses late orders with a review only.
 
-**Plain reading:** the first few days of lateness are associated with the largest jump in low ratings, and the share then levels off at around 76–80%.
+**Plain reading:** before accounting for answer timing, the first few days of lateness are associated with the largest jump in low ratings, and the share then levels off at around 76–80%. This pattern is unresolved, as the robustness section explains.
 
 ### A4. Distance and late delivery
 
@@ -111,7 +123,7 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 - **Fixed comparison, 600–1,000 km against 0–100 km:** +0.59 points (−0.49 to 1.50), odds ratio 1.11 (0.93 to 1.33).
 - **Without customer state in the model:** +2.47 points, odds ratio 1.60 (1.39 to 1.84). The plan required this to be reported. It has no bootstrap interval.
 - **Practical significance:** the whole adjusted interval is below the 2-point criterion.
-- **Interpretation limit:** state and distance overlap heavily, so this doesn't show that distance is irrelevant. It shows that this comparison adds little once state is known. The 2,000+ km band is higher, but it isn't the fixed comparison.
+- **Interpretation limit:** state and distance overlap heavily, so this doesn't show that distance has no relationship with lateness. It shows that this prespecified comparison adds little once state is known. The 2,000+ km band is higher, but it isn't the fixed comparison.
 
 **Plain reading:** in this comparison, distance adds little once the customer's state is taken into account.
 
@@ -125,9 +137,9 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 | Highest | 23.64–1,794.96 | 23,662 | 1,939 | 8.19% (7.85 to 8.55) | 7.36% |
 
 - **Adjusted risk difference, highest against lowest:** +2.16 points (1.27 to 3.01). **Odds ratio:** 1.47 (1.26 to 1.72).
-- **Practical significance:** the estimate is just above the 2-point criterion, and the interval straddles it. **Flagged for a higher-replication check.**
+- **Practical significance:** the estimate is just above the 2-point criterion, and the interval straddles it, including at 2,000 replicates (1.29 to 3.02).
 - **Interpretation limits:** nearly all of the rise is between the lowest and second quartiles. The fixed A5 model doesn't adjust for customer state, so freight may partly reflect destination. Freight also reflects weight, size and route, so this doesn't show that freight itself affects lateness.
-- **Planned exploratory check:** a version adding customer state will run at step 7. It's labelled exploratory, and it doesn't change this result or its definition.
+- **Exploratory check:** adding customer state gives +0.97 points (−0.01 to 1.94), with only the step from the lowest to the second quartile remaining (+1.01 points (0.33 to 1.70)). This doesn't change this result or its definition.
 
 **Plain reading:** the lowest-freight orders are less often late, but higher freight beyond that shows little further change.
 
@@ -148,7 +160,7 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 | Sellers outside the limits expected by chance | 0.4 |
 
 - **Test:** one-sided simulation with 5,000 draws, with a smallest possible p-value near 0.0002. Raw p 0.0002, Holm p 0.0006.
-- **Practical significance:** the estimate is below the 10-point criterion, and the interval straddles it. **Flagged for a higher-replication check.**
+- **Practical significance:** the estimate is below the 10-point criterion, and the interval straddles it, including at 2,000 replicates (2.70 to 10.40).
 - **Selection-related uncertainty:** ranking sellers by late orders in the same data flatters the top group, and even equal sellers would show a gap of about 2.41 points. The bootstrap re-ranks sellers in each replicate, so its interval can also be inflated. The split-half figure is the fairer guide to the size of the gap.
 - **Interpretation limit:** a seller's result can reflect routes and customers served, not only the seller's own performance.
 
@@ -160,7 +172,7 @@ Holm correction covers these seven tests. A2's raw p-value is too small for the 
 - **Adjusted spread:** 3.69 points (2.88 to 6.90), from 4.86% (luggage accessories) to 8.55% (baby).
 - **Unadjusted spread:** 4.03 points. **Cramér's V:** 0.031.
 - **Test:** clustered joint Wald test across 20 category terms, raw p 0.0100, Holm p 0.0201.
-- **Practical significance:** the estimate is below the 5-point criterion, and the interval straddles it. **Flagged for a higher-replication check.**
+- **Practical significance:** the estimate is below the 5-point criterion, and the interval straddles it, including at 2,000 replicates (3.03 to 6.32).
 - **Selection-related uncertainty:** the spread picks the highest and lowest categories afresh in each replicate, which pushes the replicates upward. That's why the estimate sits near the low end of its interval. The upper limit should be read with care.
 
 | Category | Orders | Unadjusted late rate | Adjusted late rate |
@@ -209,11 +221,13 @@ Bootstrap: 500 seller-level replicates, seed 20261105, with no failed replicates
 
 ## Exploratory findings (Class B)
 
-**Status: exploratory, observational and not yet tested for robustness.** These questions were shaped by looking at the data. They can suggest what to investigate or test, but they don't confirm anything. They don't change any Class A estimate, criterion or label above. P-values aren't corrected for multiple comparisons.
+**Status: exploratory and observational.** Sensitivity results are in [sensitivity_results.md](sensitivity_results.md), and stability doesn't make these findings confirmed. These questions were shaped by looking at the data. They can suggest what to investigate or test, but they don't confirm anything. They don't change any Class A estimate, criterion or label above. P-values aren't corrected for multiple comparisons.
 
 Labels here are "pattern observed" or "not observed", never "confirmed". All intervals come from 500 seller-level bootstrap replicates, seed 20261105, unless stated otherwise. Reproduced by `python/analysis/class_b.py`.
 
 ### B3. Answer timing and low ratings
+
+"Answered before arrival" means the review answer timestamp is earlier than the recorded delivery timestamp. It describes what's recorded. **It isn't definitive evidence of when a customer formed or submitted the rating, or of whether they had received the order.**
 
 | Group | Reviewed orders | Low ratings | Unadjusted share (95% interval) | Adjusted share | Mean score |
 |---|---:|---:|---:|---:|---:|
@@ -234,9 +248,9 @@ Labels here are "pattern observed" or "not observed", never "confirmed". All int
 
 - **Answered before arrival:** 70.10% of reviews on late orders. Only 180 on-time reviews were answered before arrival.
 - **What this means for A2:** A2's +51.04 points combines these two groups. The A2 label stands, but it shouldn't be read as the effect of lateness on how customers rate a received order. For reviews answered after arrival, the adjusted difference is about 10 points.
-- **Limits of answer timing:** these groups are self-selected, so customers who answered early may differ from those who didn't. Most after-arrival reviews on late orders come from short delays, so that estimate mostly describes short delays. The label depends on recorded delivery timestamps, and the data doesn't show what customers knew or expected when they answered.
+- **Limits of answer timing:** these groups are self-selected, so customers who answered early may differ from those who didn't. Most after-arrival reviews on late orders come from short delays, so that estimate mostly describes short delays. The label depends on recorded timestamps, and the data doesn't show what customers knew or expected when they answered.
 
-**Plain reading:** most low ratings on late orders came from customers who hadn't yet received their order. Customers who answered after arrival still rated late orders worse than on-time ones, but far less so.
+**Plain reading:** most low ratings on late orders have an answer timestamp before the recorded delivery. Late orders with an answer timestamp after the recorded delivery still have more low ratings than on-time orders, but far fewer.
 
 ### B4. Delay length within each answer-timing group
 
@@ -254,11 +268,20 @@ Labels here are "pattern observed" or "not observed", never "confirmed". All int
 | 15+ against 8–14 days | −5.27 points | −8.84 to −1.91 | Not estimated | Too few reviews |
 
 - **Late orders answered after arrival, 8 or more days late:** 76 reviews, 30.26% (21.09 to 41.33). This is too few to judge long delays.
-- **What this means for A3:** the share answered before arrival rises sharply with delay. Within each timing group, no step shows a clear rise of 5 points or more. So A3's rise is consistent with a change in who answered before arrival, rather than a steady worsening within either group. The A3 label and results don't change. This can't separate the two explanations, because timing and delay length are closely linked.
+- **What this means for A3:** the share answered before arrival rises sharply with delay. Using the answer timestamp, no step within a timing group shows a clear rise of 5 points or more, which is consistent with A3's rise reflecting a change in who answered before arrival. **Using survey creation date gives a different picture**, as the table below shows, so this reading depends on the timing definition. The A3 label and results don't change, and the question stays unresolved.
 - **Adjustment sets differ:** the before-arrival model uses the A2 set without the multi-seller term, and the after-arrival model drops category because it has too few events. They shouldn't be compared as if they were the same model.
 - **Model correction:** see "Exploratory model checks" below.
 
-**Plain reading:** once answer timing is separated out, delay length shows little clear change within either group, and the data is too thin to judge long delays after arrival.
+**Two timing definitions.** Review creation date is when the survey record was created. The review answer timestamp is when the answer was recorded. Neither is definitive evidence of when a customer formed or submitted the rating. A review created before delivery can have an answer recorded after it, so the two definitions split orders differently.
+
+| Timing definition | Group | 1–3 days | 4–7 days | 8–14 days | 15+ days |
+|---|---|---:|---:|---:|---:|
+| Answer timestamp (primary) | Before delivery | 78.85% (n=416) | 81.51% (n=1,352) | 82.36% (n=1,389) | 78.88% (n=1,316) |
+| Answer timestamp (primary) | After delivery | 18.59% (n=1,436) | 20.45% (n=396) | 26.32% (n=57) | Not reported (n=19) |
+| Review creation date (S9) | Before delivery | 59.84% (n=386) | 71.80% (n=1,585) | 80.21% (n=1,445) | 78.35% (n=1,335) |
+| Review creation date (S9) | After delivery | 24.83% (n=1,466) | 27.61% (n=163) | Not reported (n=1) | Not reported (n=0) |
+
+**Plain reading:** the link between delay length and low ratings within timing groups depends on the timing definition. With the answer timestamp it's weak; with review creation date, low ratings rise with delay. The data is too thin to judge long delays recorded after delivery, so this stays unresolved.
 
 ### B1. Late orders in peak months
 
@@ -473,14 +496,12 @@ The median promise is 24 days, and the median actual delivery is 10 days. 78.93%
 ## Exploratory limitations
 
 - **Observational results:** there's no randomisation, and no carrier, route, weather, stock or customer-service data. Associations here may reflect unmeasured differences.
-- **Review answer timing:** answer timing is self-selected and closely linked to delay length. Customers who answered before arrival may differ from those who answered after, and the groups can't be treated as comparable.
+- **Review timestamps:** answer timing is self-selected and closely linked to delay length, and the groups can't be treated as comparable. Neither the answer timestamp nor the creation date is definitive evidence of when a customer formed or submitted a rating, and the two give different pictures for B4.
 - **Data-selected peak months:** the months were chosen using the outcome, so concentration is partly built in, and the rule may not apply to other periods.
 - **Multiple comparisons:** many comparisons were made, without correction, so some patterns may arise by chance.
-- **Robustness:** none of these findings has yet had sensitivity testing.
+- **Sensitivity testing:** stable results across analytical choices don't make these findings confirmed.
 
 ## Next steps
 
-1. Run the sensitivity analyses, including the SP-seller check for A1 and the labelled A5 check with customer state.
-2. Run higher-replication bootstraps for A5, A6 and A7.
-3. Assign robustness labels and cross-check key results against SQL and the source CSVs.
-4. Review findings before developing recommendations.
+1. Run independent verification against SQL and the source CSVs (Step 8).
+2. Review findings before developing recommendations (Step 9).
