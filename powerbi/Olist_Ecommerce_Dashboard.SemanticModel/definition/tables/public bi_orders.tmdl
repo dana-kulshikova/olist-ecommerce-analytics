@@ -119,6 +119,103 @@ table 'public bi_orders'
 		formatString: 0.0%
 		lineageTag: a2c86e14-7b3f-4d09-8e52-6f4b1d3ac975
 
+	measure 'Delivered Orders With Date' = ```
+			
+			CALCULATE (
+			    COUNTROWS ( 'public bi_orders' ),
+			    KEEPFILTERS ( 'public bi_orders'[order_status] = "delivered" ),
+			    KEEPFILTERS (
+			        NOT ISBLANK ( 'public bi_orders'[order_delivered_customer_date] )
+			    )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: fd2381d9-e563-4e38-bfbc-99958cfc93e8
+
+	measure 'Late Orders' = ```
+			
+			CALCULATE (
+			    [Delivered Orders With Date],
+			    KEEPFILTERS (
+			        INT ( 'public bi_orders'[order_delivered_customer_date] )
+			        > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+			    )
+			)
+			
+			```
+		formatString: #,0
+		lineageTag: 6ea6bc25-710d-48fa-bf4b-3ee98194c94b
+
+	measure 'Late Delivery Rate' = ```
+			
+			DIVIDE (
+			    [Late Orders],
+			    [Delivered Orders With Date]
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e1cb816c-cb48-4c99-8143-7b469becfb77
+
+	measure 'Median Promised Days' = ```
+			
+			MEDIANX (
+			    FILTER (
+			        'public bi_orders',
+			        'public bi_orders'[order_status] = "delivered"
+			            && NOT ISBLANK (
+			                'public bi_orders'[order_delivered_customer_date]
+			            )
+			    ),
+			    DATEDIFF (
+			        'public bi_orders'[order_purchase_timestamp],
+			        'public bi_orders'[order_estimated_delivery_date],
+			        DAY
+			    )
+			)
+			
+			```
+		formatString: 0.0
+		lineageTag: 388debf9-31cf-4daa-bbd5-8f5c47a10ac9
+
+	measure 'Median Actual Days' = ```
+			
+			MEDIANX (
+			    FILTER (
+			        'public bi_orders',
+			        'public bi_orders'[order_status] = "delivered"
+			            && NOT ISBLANK (
+			                'public bi_orders'[order_delivered_customer_date]
+			            )
+			    ),
+			    DATEDIFF (
+			        'public bi_orders'[order_purchase_timestamp],
+			        'public bi_orders'[order_delivered_customer_date],
+			        DAY
+			    )
+			)
+			
+			```
+		formatString: 0.0
+		lineageTag: ab122a93-c218-4992-b733-ad494390f9c4
+
+	measure 'Not Delivered Share' = ```
+			
+			DIVIDE (
+			    CALCULATE (
+			        COUNTROWS ( 'public bi_orders' ),
+			        KEEPFILTERS (
+			            'public bi_orders'[order_status] <> "delivered"
+			        )
+			    ),
+			    COUNTROWS ( 'public bi_orders' )
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: fc0b5f9e-b490-46b8-b248-96cb575a3064
+
 	column order_id
 		dataType: string
 		lineageTag: 848cfb97-56e1-4cdc-b6ff-604d108965db

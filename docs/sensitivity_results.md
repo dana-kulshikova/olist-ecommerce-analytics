@@ -1,6 +1,6 @@
 # Sensitivity Results
 
-**Status: Step 7 results for review.** Primary Class A and Class B estimates, definitions, screening criteria and labels are unchanged. All results are observational associations. The independent audit (Step 8) is in [independent_audit.md](independent_audit.md), with a remediation addendum that lists open items. The robustness labels below have been approved, and the A6 and A7 wording was revised after the audit.
+**Status: Step 7 results, reviewed.** Primary Class A and Class B estimates, definitions, screening criteria and labels are unchanged. All results are observational associations. The independent audit (Step 8) is in [independent_audit.md](independent_audit.md), with a remediation addendum that lists open items. The robustness labels below have been approved, and the A6 and A7 wording was revised after the audit.
 
 Reproduced by `python/analysis/sensitivity.py` and `python/analysis/sensitivity_supplement.py`, which use `python/analysis/sensitivity_common.py`.
 

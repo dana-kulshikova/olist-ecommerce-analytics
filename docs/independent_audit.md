@@ -1,6 +1,6 @@
 # Independent Technical Audit (Step 8)
 
-**Status: for review, not yet approved.** Audited commit: `e06158e` on `case-study-upgrade`. No existing code, dataset or document was changed. Issues are reported here and not corrected. All results remain observational associations.
+**Status: reviewed. Corrections were approved and are recorded in the remediation addendum and follow-up below.** Audited commit: `e06158e` on `case-study-upgrade`. No existing code, dataset or document was changed. Issues are reported here and not corrected. All results remain observational associations.
 
 *Everything above the [remediation addendum](#remediation-addendum-2026-11-05) is the original audit result, including its counts: 39 PASS, 14 FAIL and 6 NEEDS INVESTIGATION. The statement that nothing was changed describes the audit itself. Later corrections are recorded only in the addendum.*
 

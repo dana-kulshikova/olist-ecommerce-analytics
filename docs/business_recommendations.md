@@ -1,6 +1,6 @@
 # Business Recommendations
 
-**Status: for review, not yet approved.** Prepared from commit `d7c88c7` on `case-study-upgrade`. Based only on historical Olist data from 2016 to 2018. It describes what the data supports and what a business would need to check next. It isn't a diagnosis of current operations.
+**Status: approved.** Prepared from commit `d7c88c7` on `case-study-upgrade`. Based only on historical Olist data from 2016 to 2018. It describes what the data supports and what a business would need to check next. It isn't a diagnosis of current operations.
 
 ## 1. Executive Summary
 

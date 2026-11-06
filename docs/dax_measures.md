@@ -1,8 +1,24 @@
 # DAX Measures
 
-Generated from `powerbi/Olist_Ecommerce_Dashboard.SemanticModel/definition/tables/public bi_orders.tmdl`, so the expressions below are exact copies.
+Generated from `powerbi/Olist_Ecommerce_Dashboard.SemanticModel/definition/tables/`, so every expression below is an exact copy of the saved model. Validation results are in [powerbi_validation.md](powerbi_validation.md).
 
-## Total Product Sales
+The model has two imported tables: `public bi_orders` (one row per order, all statuses) and `public bi_order_reviews` (one row per order with a selected review). See [data_model.md](data_model.md).
+
+## Contents
+
+- [Overview page measures](#overview-page-measures)
+- [Delivery measures](#delivery-measures)
+- [Review measures](#review-measures)
+- [Calculated columns](#calculated-columns)
+- [Shared rules](#shared-rules)
+- [The on-time correction](#the-on-time-correction)
+- [Empty measures](#empty-measures)
+
+## Overview page measures
+
+These measures were built for the first page and are unchanged.
+
+### Total Product Sales
 
 Item prices on delivered orders. Excludes freight.
 
@@ -14,9 +30,9 @@ CALCULATE(
     'public bi_orders'[order_status] = "delivered")
 ```
 
-## Total Orders
+### Total Orders
 
-Distinct delivered orders, so cancelled or in-progress orders aren't counted.
+Distinct delivered orders, so cancelled or in-progress orders aren't counted. Includes the 8 delivered orders with no delivery date.
 
 Format string: `#,##0`
 
@@ -27,7 +43,7 @@ CALCULATE(
 )
 ```
 
-## Average Order Value
+### Average Order Value
 
 Product sales per delivered order.
 
@@ -40,9 +56,9 @@ DIVIDE(
 )
 ```
 
-## Average Delivery Time
+### Average Delivery Time
 
-Purchase to customer delivery on delivered orders with `valid_delivery_dates` = TRUE. `DATEDIFF(DAY)` counts calendar-day boundaries, so it can differ slightly from a fractional-day calculation (query 12 in `sql/03_data_quality_and_analysis.sql`).
+Mean calendar days from purchase to customer delivery, on delivered orders with `valid_delivery_dates` = TRUE. `DATEDIFF(DAY)` counts calendar-day boundaries, so it can differ slightly from a fractional-day calculation (query 12 in `sql/03_data_quality_and_analysis.sql`).
 
 Format string: `0.0 "days"`
 
@@ -61,9 +77,9 @@ CALCULATE(
 )
 ```
 
-## On-Time Delivery Rate
+### On-Time Delivery Rate
 
-Delivered on or before the estimated calendar date. Corrected during the project; see below.
+Delivered on or before the estimated calendar date, over delivered orders with a delivery date. Corrected during the project; see below. Its `CALCULATE` filters replace any outside filter on `order_status` and on the two date columns, so it isn't meant to be sliced by those columns.
 
 Format string: `0.00%;-0.00%;0.00%`
 
@@ -83,9 +99,9 @@ DIVIDE(
 )
 ```
 
-## Key Takeaways
+### Key Takeaways
 
-Earlier text summary. The hidden table on the report page still uses it; the visible panel uses cards bound directly to the measures.
+Earlier text summary. The hidden table on the Overview page still uses it; the visible panel uses cards bound directly to the measures.
 
 ```dax
 "• R$ " & FORMAT([Total Product Sales] / 1000000, "#,##0.00") & "M in total product sales across "
@@ -101,7 +117,7 @@ Earlier text summary. The hidden table on the report page still uses it; the vis
 & FORMAT([On-Time Delivery Rate], "0.00%") & "."
 ```
 
-## Top State by Sales
+### Top State by Sales
 
 Added for the Key Takeaways panel. Responds to the date slicer.
 
@@ -122,7 +138,7 @@ RETURN
     )
 ```
 
-## Top State Sales Share
+### Top State Sales Share
 
 The leading state's share of sales in the current filter context. Responds to the date slicer.
 
@@ -137,6 +153,268 @@ VAR TopStateSales =
 RETURN
     DIVIDE(TopStateSales, [Total Product Sales])
 ```
+
+## Delivery measures
+
+Added for the Delivery & Customer Experience page, in `public bi_orders`. They use `KEEPFILTERS`, so slicers and visual filters are kept rather than replaced. The population is delivered orders with a recorded delivery date (96,470), which includes the 189 delivered orders flagged by `valid_delivery_dates`: late status uses only the delivery and estimated dates, so those flags matter only for stage timing.
+
+### Delivered Orders With Date
+
+Delivered orders with a recorded delivery date. The denominator for every delivery rate on the page. Orders with no delivery date are excluded.
+
+Format string: `0`
+
+```dax
+CALCULATE (
+    COUNTROWS ( 'public bi_orders' ),
+    KEEPFILTERS ( 'public bi_orders'[order_status] = "delivered" ),
+    KEEPFILTERS (
+        NOT ISBLANK ( 'public bi_orders'[order_delivered_customer_date] )
+    )
+)
+```
+
+### Late Orders
+
+Orders delivered after the estimated calendar date. `INT()` compares calendar days, the same comparison as `::date` in SQL and `.normalize()` in Python. Format `#,0` shows thousands separators.
+
+Format string: `#,0`
+
+```dax
+CALCULATE (
+    [Delivered Orders With Date],
+    KEEPFILTERS (
+        INT ( 'public bi_orders'[order_delivered_customer_date] )
+        > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+    )
+)
+```
+
+### Late Delivery Rate
+
+Late Orders ÷ Delivered Orders With Date. Unlike the On-Time Delivery Rate, it keeps outside filters, so the two add up to 100% only when no status or delivery-date filter is applied, as on the dashboard.
+
+Format string: `0.00%;-0.00%;0.00%`
+
+```dax
+DIVIDE (
+    [Late Orders],
+    [Delivered Orders With Date]
+)
+```
+
+### Median Promised Days
+
+Median calendar days from purchase to the estimated delivery date, over delivered orders with a delivery date. `DATEDIFF(DAY)` counts day boundaries, so it equals the difference between calendar dates; it isn't elapsed time. `MEDIANX` averages the two middle values for an even count.
+
+Format string: `0.0`
+
+```dax
+MEDIANX (
+    FILTER (
+        'public bi_orders',
+        'public bi_orders'[order_status] = "delivered"
+            && NOT ISBLANK (
+                'public bi_orders'[order_delivered_customer_date]
+            )
+    ),
+    DATEDIFF (
+        'public bi_orders'[order_purchase_timestamp],
+        'public bi_orders'[order_estimated_delivery_date],
+        DAY
+    )
+)
+```
+
+### Median Actual Days
+
+Median calendar days from purchase to delivery, on the same population. Unlike Average Delivery Time (a mean on valid dates only), it includes flagged orders, matching the research definition.
+
+Format string: `0.0`
+
+```dax
+MEDIANX (
+    FILTER (
+        'public bi_orders',
+        'public bi_orders'[order_status] = "delivered"
+            && NOT ISBLANK (
+                'public bi_orders'[order_delivered_customer_date]
+            )
+    ),
+    DATEDIFF (
+        'public bi_orders'[order_purchase_timestamp],
+        'public bi_orders'[order_delivered_customer_date],
+        DAY
+    )
+)
+```
+
+### Not Delivered Share
+
+Orders with any status other than delivered ÷ all orders. Deliberately wider than the delivery base, as a guardrail for orders the base leaves out. It mixes cancelled and unavailable orders with statuses that may still have been open when the data ended, such as shipped.
+
+Format string: `0.00%;-0.00%;0.00%`
+
+```dax
+DIVIDE (
+    CALCULATE (
+        COUNTROWS ( 'public bi_orders' ),
+        KEEPFILTERS (
+            'public bi_orders'[order_status] <> "delivered"
+        )
+    ),
+    COUNTROWS ( 'public bi_orders' )
+)
+```
+
+## Review measures
+
+In `public bi_order_reviews`. Filters on `public bi_orders` columns reach the review table through the single-direction relationship. Orders with no review aren't counted, and aren't treated as low ratings.
+
+### Reviewed Orders
+
+Orders with a selected review score whose order is delivered with a delivery date. The denominator for every review rate.
+
+Format string: `0`
+
+```dax
+CALCULATE (
+    COUNTROWS ( 'public bi_order_reviews' ),
+    KEEPFILTERS (
+        NOT ISBLANK (
+            'public bi_order_reviews'[latest_review_score]
+        )
+    ),
+    KEEPFILTERS (
+        'public bi_orders'[order_status] = "delivered"
+    ),
+    KEEPFILTERS (
+        NOT ISBLANK (
+            'public bi_orders'[order_delivered_customer_date]
+        )
+    )
+)
+```
+
+### Low-Rated Orders
+
+Reviewed Orders rated 1 or 2 stars. Blank scores can't qualify, because Reviewed Orders already excludes them.
+
+Format string: `0`
+
+```dax
+CALCULATE (
+    [Reviewed Orders],
+    KEEPFILTERS (
+        'public bi_order_reviews'[latest_review_score] <= 2
+    )
+)
+```
+
+### Low-Rating Share
+
+Low-Rated Orders ÷ Reviewed Orders.
+
+Format string: `0.00%;-0.00%;0.00%`
+
+```dax
+DIVIDE (
+    [Low-Rated Orders],
+    [Reviewed Orders]
+)
+```
+
+### Review Key Check
+
+Hidden integrity check: rows minus distinct order IDs in the review table. It must be 0, confirming one selected review per order.
+
+Format string: `0`
+
+```dax
+COUNTROWS ( 'public bi_order_reviews' )
+    - DISTINCTCOUNT ( 'public bi_order_reviews'[order_id] )
+```
+
+## Calculated columns
+
+All four are in `public bi_order_reviews`, so `public bi_orders` has no added columns.
+
+### Delivery Review Group
+
+Blank for review rows that aren't delivered orders with a delivery date and a score. Otherwise, on time or late by calendar date, then late reviews split by whether the review **answer timestamp** is earlier than the recorded delivery timestamp. The answer timestamp records when the answer was recorded; it isn't evidence of when the customer submitted the review, formed an opinion or received the order. Equal timestamps count as after delivery, matching the strict `<` in the research. A missing answer timestamp gets its own label instead of being guessed: in DAX, `BLANK < date` is TRUE. No row currently has that label.
+
+```dax
+VAR st = RELATED ( 'public bi_orders'[order_status] )
+VAR d = RELATED ( 'public bi_orders'[order_delivered_customer_date] )
+VAR e = RELATED ( 'public bi_orders'[order_estimated_delivery_date] )
+VAR a = 'public bi_order_reviews'[latest_review_answered_ts]
+RETURN
+    SWITCH (
+        TRUE (),
+        st <> "delivered"
+            || ISBLANK ( d )
+            || ISBLANK ( 'public bi_order_reviews'[latest_review_score] ), BLANK (),
+        INT ( d ) <= INT ( e ), "On time",
+        ISBLANK ( a ), "Late, answer time missing",
+        a < d, "Late, answered before delivery",
+        "Late, answered after delivery"
+    )
+```
+
+### Order Type
+
+Multi-item means two or more item rows (`items_count`, a count of item rows in `bi_orders`). It doesn't mean distinct products or sellers.
+
+```dax
+VAR n = RELATED ( 'public bi_orders'[items_count] )
+RETURN
+    IF (
+        n >= 2,
+        "Multi-item",
+        IF ( n = 1, "Single item" )
+    )
+```
+
+### Delivery Status
+
+Combines the two late timing groups into one Late category, for comparing order types by delivery status.
+
+```dax
+SWITCH (
+    TRUE (),
+    ISBLANK ( 'public bi_order_reviews'[Delivery Review Group] ), BLANK (),
+    'public bi_order_reviews'[Delivery Review Group] = "On time", "On time",
+    "Late"
+)
+```
+
+### Delivery Review Label
+
+A shorter display name for each Delivery Review Group value, used as the category axis of the review-timing chart so its labels aren't cut off. It maps values one to one and doesn't change any classification. Rows with a blank group stay blank.
+
+```dax
+SWITCH (
+    'public bi_order_reviews'[Delivery Review Group],
+    "Late, answered before delivery", "Late — before delivery",
+    "Late, answered after delivery", "Late — after delivery",
+    "Late, answer time missing", "Late — answer time missing",
+    "On time", "On time",
+    BLANK ()
+)
+```
+
+## Shared rules
+
+| Rule | Applies to |
+|---|---|
+| Late = delivery calendar date after the estimated calendar date | Late Orders, Late Delivery Rate, Delivery Review Group, On-Time Delivery Rate |
+| Base = delivered status with a delivery date (96,470 orders) | All delivery and review measures except Not Delivered Share and Total Orders |
+| The 189 flagged delivered orders with a delivery date stay in | All of the above. Only Average Delivery Time uses `valid_delivery_dates` |
+| Days are calendar days (`DATEDIFF(DAY)`), not elapsed hours | Median Promised Days, Median Actual Days, Average Delivery Time |
+| Low rating = latest selected review scored 1 or 2 | Low-Rated Orders, Low-Rating Share |
+| Missing reviews are excluded, not counted as low | All review measures |
+
+These are descriptive, unadjusted figures. The adjusted research estimates shown in the dashboard's Research Findings panel are fixed text from [hypothesis_log.md](hypothesis_log.md); no measure recalculates them.
 
 ## The on-time correction
 
@@ -160,4 +438,4 @@ The corrected result was confirmed in the Power BI engine and independently from
 
 ## Empty measures
 
-`Measure` and `Measure 2` have no expression and aren't used by any visual. They remain in the model because this repository is an exact copy of the working project.
+`Measure` and `Measure 2` have no expression and aren't used by any visual. They predate the second page and are kept unchanged for now.

@@ -1,6 +1,6 @@
 # Methodology
 
-**Status: approved plan. The main analysis, sensitivity analyses and independent audit (Steps 0–8) have been run. Step 9, recommendations, hasn't started.**
+**Status: approved plan. The main analysis, sensitivity analyses and independent audit (Steps 0–8) have been run. Recommendations (Step 9) are in [business_recommendations.md](business_recommendations.md), and the dashboard's second page and its validation are in [powerbi_validation.md](powerbi_validation.md).**
 
 This document explains how the case study reaches its conclusions and how much weight they can bear. The exact hypothesis definitions and statistical details are in [analysis_plan.md](analysis_plan.md), and results are recorded in `hypothesis_log.md`.
 
@@ -188,7 +188,7 @@ The cause is unknown. The data can't show whether this reflects recording system
 
 **Main analysis**
 
-Steps 0–8 have been run. Step 9 hasn't started.
+Steps 0–9 are complete. Step 9's recommendations are in [business_recommendations.md](business_recommendations.md).
 
 | Step | Work | Review |
 |---|---|---|

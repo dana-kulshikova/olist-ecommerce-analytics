@@ -23,3 +23,12 @@ relationship 63861e52-70d9-4814-94e2-9d0dfaf5d7ae
 	fromColumn: 'public bi_orders'.order_estimated_delivery_date
 	toColumn: LocalDateTable_f62286ec-905c-41c4-ae28-76a201b9a4c6.Date
 
+relationship 5ac71175-60b9-4a03-82b2-5fb93258413c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'public bi_order_reviews'.latest_review_answered_ts
+	toColumn: LocalDateTable_1c651ed1-5cf8-48a6-add4-58765a199082.Date
+
+relationship AutoDetected_196a3878-226b-4985-87bc-8d4e558970c9
+	fromColumn: 'public bi_order_reviews'.order_id
+	toColumn: 'public bi_orders'.order_id
+

@@ -1,0 +1,174 @@
+table 'public bi_order_reviews'
+	lineageTag: 3ca99c5f-69de-46df-82df-33b4407dbb05
+
+	measure 'Reviewed Orders' = ```
+			
+			CALCULATE (
+			    COUNTROWS ( 'public bi_order_reviews' ),
+			    KEEPFILTERS (
+			        NOT ISBLANK (
+			            'public bi_order_reviews'[latest_review_score]
+			        )
+			    ),
+			    KEEPFILTERS (
+			        'public bi_orders'[order_status] = "delivered"
+			    ),
+			    KEEPFILTERS (
+			        NOT ISBLANK (
+			            'public bi_orders'[order_delivered_customer_date]
+			        )
+			    )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: aea8b078-8d01-45ac-b78e-356e03882283
+
+	measure 'Low-Rated Orders' = ```
+			
+			CALCULATE (
+			    [Reviewed Orders],
+			    KEEPFILTERS (
+			        'public bi_order_reviews'[latest_review_score] <= 2
+			    )
+			)
+			
+			```
+		formatString: 0
+		lineageTag: f0fa3b3d-a78d-44a4-a2fb-a72deef9e819
+
+	measure 'Low-Rating Share' = ```
+			
+			DIVIDE (
+			    [Low-Rated Orders],
+			    [Reviewed Orders]
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 863a7f26-3cbb-48bf-ae9a-7f472690f0d8
+
+	measure 'Review Key Check' = ```
+			
+			COUNTROWS ( 'public bi_order_reviews' )
+			    - DISTINCTCOUNT ( 'public bi_order_reviews'[order_id] )
+			
+			```
+		formatString: 0
+		isHidden
+		lineageTag: 7079c8d2-363b-4967-ad54-624f408e7e14
+
+		changedProperty = IsHidden
+
+	column order_id
+		dataType: string
+		lineageTag: aaed60de-8832-41a4-b8b3-9e992fb8dc7a
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column latest_review_score
+		dataType: int64
+		formatString: 0
+		lineageTag: 2973c70b-172b-4a13-a7e6-f676f0d0088c
+		summarizeBy: none
+		sourceColumn: latest_review_score
+
+		annotation SummarizationSetBy = User
+
+	column latest_review_answered_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 0b56be53-de82-40cf-8625-d6a5c4f1c5ef
+		summarizeBy: none
+		sourceColumn: latest_review_answered_ts
+
+		variation Variation
+			isDefault
+			relationship: 5ac71175-60b9-4a03-82b2-5fb93258413c
+			defaultHierarchy: LocalDateTable_1c651ed1-5cf8-48a6-add4-58765a199082.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Review Group' = ```
+			
+			VAR st = RELATED ( 'public bi_orders'[order_status] )
+			VAR d = RELATED ( 'public bi_orders'[order_delivered_customer_date] )
+			VAR e = RELATED ( 'public bi_orders'[order_estimated_delivery_date] )
+			VAR a = 'public bi_order_reviews'[latest_review_answered_ts]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        st <> "delivered"
+			            || ISBLANK ( d )
+			            || ISBLANK ( 'public bi_order_reviews'[latest_review_score] ), BLANK (),
+			        INT ( d ) <= INT ( e ), "On time",
+			        ISBLANK ( a ), "Late, answer time missing",
+			        a < d, "Late, answered before delivery",
+			        "Late, answered after delivery"
+			    )
+			
+			```
+		lineageTag: 901dd7ea-861f-413a-86b1-d40183687f32
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Order Type' = ```
+			
+			VAR n = RELATED ( 'public bi_orders'[items_count] )
+			RETURN
+			    IF (
+			        n >= 2,
+			        "Multi-item",
+			        IF ( n = 1, "Single item" )
+			    )
+			
+			```
+		lineageTag: 9684f0fb-cb9b-4560-a3ae-868349bc2869
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Status' = ```
+			
+			SWITCH (
+			    TRUE (),
+			    ISBLANK ( 'public bi_order_reviews'[Delivery Review Group] ), BLANK (),
+			    'public bi_order_reviews'[Delivery Review Group] = "On time", "On time",
+			    "Late"
+			)
+			
+			```
+		lineageTag: bea9b0df-7f02-474c-a68e-0f265d532779
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Delivery Review Label' = ```
+			
+			SWITCH (
+			    'public bi_order_reviews'[Delivery Review Group],
+			    "Late, answered before delivery", "Late — before delivery",
+			    "Late, answered after delivery", "Late — after delivery",
+			    "Late, answer time missing", "Late — answer time missing",
+			    "On time", "On time",
+			    BLANK ()
+			)
+			
+			```
+		lineageTag: bce36197-e0c3-4ce5-b8f2-459f18decaec
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'public bi_order_reviews' = m
+		mode: import
+		source =
+				let
+				    Source = PostgreSQL.Database("localhost", "ecommerce_bi"),
+				    public_bi_order_reviews = Source{[Schema="public",Item="bi_order_reviews"]}[Data]
+				in
+				    public_bi_order_reviews
+

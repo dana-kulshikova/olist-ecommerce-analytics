@@ -1,0 +1,136 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "dabab7c603cb0a8a5008",
+  "displayName": "Delivery & Customer Experience",
+  "displayOption": "FitToPage",
+  "height": 1080,
+  "width": 1920,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F3F6FB'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "00aa03582464d267b492",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "d2bb3d53889cb3742db6",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "cd162fc15f01db0cb51a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "0cac86a3e4b5ab823f6b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "2e10dc8673705ad1af4e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "c645f5163f54f4bc5804",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "9ee63b193a956193446b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "51c189df1ae4e2b348d2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "b33b12b9ef06fda69d4b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "00aa03582464d267b492",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "d2bb3d53889cb3742db6",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "cd162fc15f01db0cb51a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "0cac86a3e4b5ab823f6b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "2e10dc8673705ad1af4e",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "c645f5163f54f4bc5804",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "9ee63b193a956193446b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "51c189df1ae4e2b348d2",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "b33b12b9ef06fda69d4b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "f12302af8d3f2b4281ec",
+      "target": "80e9d5cda3d050ffaf0a",
+      "type": "NoFilter"
+    },
+    {
+      "source": "80e9d5cda3d050ffaf0a",
+      "target": "f12302af8d3f2b4281ec",
+      "type": "NoFilter"
+    }
+  ]
+}

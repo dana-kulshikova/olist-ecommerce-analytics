@@ -1,0 +1,38 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "b29d1e0c4393c7488c25",
+  "position": {
+    "x": 32,
+    "y": 998,
+    "z": 2600,
+    "height": 74,
+    "width": 1856,
+    "tabOrder": 2600
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Notes: Historical Olist data, 2016–2018. Dashboard rates are descriptive and unadjusted; adjusted results appear only in Research Findings. Late = delivered after the estimated calendar date. Rates exclude orders without a delivery date and include the 189 delivered orders with inconsistent date sequences. Durations are median calendar days. Low rating = 1–2 stars on the latest answered review. Recent months may be incomplete (orders in transit when the data ended are excluded). Carrier timestamps change abruptly on 25 Apr 2018, so handover timing isn't shown.",
+                    "textStyle": {
+                      "fontFamily": "Segoe UI",
+                      "fontSize": "10pt",
+                      "color": "#5B6B82"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -503,7 +503,8 @@ The median promise is 24 days, and the median actual delivery is 10 days. 78.93%
 - **Multiple comparisons:** many comparisons were made, without correction, so some patterns may arise by chance.
 - **Sensitivity testing:** stable results across analytical choices don't make these findings confirmed.
 
-## Next steps
+## Where the results are used
 
-1. Review the independent audit and its remediation, in [independent_audit.md](independent_audit.md).
-2. Review findings before developing recommendations (Step 9).
+- The independent audit and its remediation are in [independent_audit.md](independent_audit.md).
+- Business recommendations based on these findings are in [business_recommendations.md](business_recommendations.md).
+- The dashboard's Research Findings panel quotes A1, A2, B6 and B7 as fixed text; see [powerbi_validation.md](powerbi_validation.md).

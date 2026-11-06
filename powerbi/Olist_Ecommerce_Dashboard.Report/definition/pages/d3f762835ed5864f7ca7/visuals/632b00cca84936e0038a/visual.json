@@ -21,10 +21,10 @@
                   {
                     "value": "E-Commerce Performance Dashboard",
                     "textStyle": {
+                      "fontWeight": "bold",
                       "fontFamily": "Segoe UI",
                       "fontSize": "32pt",
-                      "color": "#142C4E",
-                      "fontWeight": "bold"
+                      "color": "#142c4e"
                     }
                   }
                 ]
