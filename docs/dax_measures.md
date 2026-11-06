@@ -12,7 +12,7 @@ The model has two imported tables: `public bi_orders` (one row per order, all st
 - [Calculated columns](#calculated-columns)
 - [Shared rules](#shared-rules)
 - [The on-time correction](#the-on-time-correction)
-- [Empty measures](#empty-measures)
+- [Removed placeholder measures](#removed-placeholder-measures)
 
 ## Overview page measures
 
@@ -436,6 +436,6 @@ This caused two errors:
 
 The corrected result was confirmed in the Power BI engine and independently from the source CSV.
 
-## Empty measures
+## Removed placeholder measures
 
-`Measure` and `Measure 2` have no expression and aren't used by any visual. They predate the second page and are kept unchanged for now.
+`Measure` and `Measure 2` were empty placeholders left from the original training file. They had no expression, and no measure, column, visual, filter or tooltip referred to them, so they were removed from the model.

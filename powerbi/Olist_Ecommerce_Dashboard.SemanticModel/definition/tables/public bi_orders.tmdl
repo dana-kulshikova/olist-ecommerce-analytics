@@ -27,16 +27,6 @@ table 'public bi_orders'
 		formatString: "R$ "#,##0.00
 		lineageTag: d88d209a-7d65-493b-b102-77483935ca22
 
-	measure Measure
-		lineageTag: 2a114f9e-ae7c-4f3b-9b06-ec9f658974ac
-
-		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
-
-	measure 'Measure 2'
-		lineageTag: 34a98e83-2f5a-457d-9097-81e9348c329e
-
-		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
-
 	measure 'Average Delivery Time' =
 			
 			CALCULATE(

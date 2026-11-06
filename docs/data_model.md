@@ -81,8 +81,7 @@ The review relationship is declared many-to-one even though each order has at mo
 - **No seller or shipping fields** are imported, so seller and route views aren't possible in Power BI.
 - **Review timestamps** record when the answer was recorded, not when a customer formed or submitted a rating.
 - **Refresh** needs the local PostgreSQL database and both views. Credentials are stored by Power BI Desktop, not in the project files.
-- **Two empty measures**, `Measure` and `Measure 2`, remain from the original model and aren't used.
 
 ![Power BI model view](../screenshots/04_data_model.png)
 
-The model view screenshot shows the original single-table model, before the review table was added.
+The model view shows the two tables and the single-direction relationship from orders to reviews. Power BI hides its automatic date tables, so they and their six date relationships don't appear in this view.

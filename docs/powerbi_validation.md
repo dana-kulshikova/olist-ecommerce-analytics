@@ -100,9 +100,10 @@ The query is reproduced in the appendix.
 
 **Model files** (Files):
 - 9 tables; 7 relationships, including the review relationship (many-to-one, single direction, active).
-- Two model changes have been made since the 49-check run:
+- Three model changes have been made since the 49-check run:
   - Late Orders' format string changed from `0` to `#,0`.
   - A display column, Delivery Review Label, was added, so the review-timing chart's category labels fit. It maps each Delivery Review Group value to a shorter name, one to one.
+  - Two empty placeholder measures from the original training file, `Measure` and `Measure 2`, were removed. Nothing referred to them.
 - Every DAX expression that was validated is unchanged.
 
 ## 4. Report (Files, Visual)
