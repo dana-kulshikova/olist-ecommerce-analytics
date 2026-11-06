@@ -52,7 +52,7 @@ table 'public bi_orders'
 			        'public bi_orders'[order_status] = "delivered",
 			        NOT(ISBLANK('public bi_orders'[order_delivered_customer_date])),
 			        INT('public bi_orders'[order_delivered_customer_date]) <= INT('public bi_orders'[order_estimated_delivery_date])
-			    ),
+			    ) + 0,
 			    CALCULATE(
 			        COUNTROWS('public bi_orders'),
 			        'public bi_orders'[order_status] = "delivered",
@@ -125,13 +125,18 @@ table 'public bi_orders'
 
 	measure 'Late Orders' = ```
 			
-			CALCULATE (
-			    [Delivered Orders With Date],
-			    KEEPFILTERS (
-			        INT ( 'public bi_orders'[order_delivered_customer_date] )
-			        > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+			VAR DeliveredWithDate = [Delivered Orders With Date]
+			RETURN
+			    IF (
+			        NOT ISBLANK ( DeliveredWithDate ),
+			        CALCULATE (
+			            [Delivered Orders With Date],
+			            KEEPFILTERS (
+			                INT ( 'public bi_orders'[order_delivered_customer_date] )
+			                > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+			            )
+			        ) + 0
 			    )
-			)
 			
 			```
 		formatString: #,0
@@ -205,6 +210,52 @@ table 'public bi_orders'
 			```
 		formatString: 0.00%;-0.00%;0.00%
 		lineageTag: fc0b5f9e-b490-46b8-b248-96cb575a3064
+
+	measure 'State Full-Period Orders' = ```
+			
+			CALCULATE (
+			    [Delivered Orders With Date],
+			    ALLEXCEPT ( 'public bi_orders', 'public bi_orders'[customer_state] )
+			)
+			
+			```
+		formatString: 0
+		isHidden
+		lineageTag: 460a633b-e922-4b90-9e91-35d2552e36cd
+
+		changedProperty = IsHidden
+
+	measure 'Month Coverage Orders' = ```
+			
+			CALCULATE (
+			    [Delivered Orders With Date],
+			    REMOVEFILTERS ( 'public bi_orders'[customer_state] )
+			)
+			
+			```
+		formatString: 0
+		isHidden
+		lineageTag: 35bb4c07-ff4a-48fc-8b81-f24157187439
+
+		changedProperty = IsHidden
+
+	measure 'Sample Bar Colour' = ```
+			
+			VAR DeliveredWithDate = [Delivered Orders With Date]
+			RETURN
+			    SWITCH (
+			        TRUE (),
+			        ISBLANK ( DeliveredWithDate ), BLANK (),
+			        DeliveredWithDate < 30, "#B4BDCA",
+			        DeliveredWithDate < 100, "#8FB1E6",
+			        "#2463C5"
+			    )
+			
+			```
+		isHidden
+		lineageTag: 978161bd-36e3-4771-80c6-cd478a08cd71
+
+		changedProperty = IsHidden
 
 	column order_id
 		dataType: string

@@ -126,6 +126,24 @@
               "nativeQueryRef": "Median Actual Days"
             }
           ]
+        },
+        "Tooltips": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "public bi_orders"
+                    }
+                  },
+                  "Property": "Delivered Orders With Date"
+                }
+              },
+              "queryRef": "public bi_orders.Delivered Orders With Date",
+              "nativeQueryRef": "Delivered Orders With Date"
+            }
+          ]
         }
       },
       "sortDefinition": {
@@ -741,6 +759,55 @@
                         }
                       },
                       "Property": "Delivered Orders With Date"
+                    }
+                  },
+                  "Right": {
+                    "Literal": {
+                      "Value": "1L"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      },
+      {
+        "name": "cfb6eda27279da5378be",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "public bi_orders"
+              }
+            },
+            "Property": "Month Coverage Orders"
+          }
+        },
+        "type": "Advanced",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "p",
+              "Entity": "public bi_orders",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Comparison": {
+                  "ComparisonKind": 2,
+                  "Left": {
+                    "Measure": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "p"
+                        }
+                      },
+                      "Property": "Month Coverage Orders"
                     }
                   },
                   "Right": {

@@ -19,7 +19,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Notes: Historical Olist data, 2016–2018. Dashboard rates are descriptive and unadjusted; adjusted results appear only in Research Findings. Late = delivered after the estimated calendar date. Rates exclude orders without a delivery date and include the 189 delivered orders with inconsistent date sequences. Durations are median calendar days. Low rating = 1–2 stars on the latest answered review. Recent months may be incomplete (orders in transit when the data ended are excluded). Carrier timestamps change abruptly on 25 Apr 2018, so handover timing isn't shown.",
+                    "value": "Notes: Historical Olist data, 2016–2018. Dashboard rates are descriptive and unadjusted; adjusted results appear only in Research Findings. Late = delivered after the estimated calendar date. Rates exclude orders without a delivery date and include the 189 delivered orders with inconsistent date sequences. Durations are median calendar days. Low rating = 1–2 stars on the latest answered review. Recent months may be incomplete (orders in transit when the data ended are excluded). Carrier timestamps change abruptly on 25 Apr 2018, so handover timing isn't shown. Shading: pale grey = under 30 delivered orders, light blue = 30–99 (small samples, unstable rates). The state chart shows the 12 states with 1,000+ delivered orders plus any slicer choice; monthly charts omit months with under 100 orders nationwide.",
                     "textStyle": {
                       "fontFamily": "Segoe UI",
                       "fontSize": "10pt",

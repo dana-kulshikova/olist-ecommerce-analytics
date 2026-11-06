@@ -100,11 +100,13 @@ The query is reproduced in the appendix.
 
 **Model files** (Files):
 - 9 tables; 7 relationships, including the review relationship (many-to-one, single direction, active).
-- Three model changes have been made since the 49-check run:
+- These model changes have been made since the 49-check run:
   - Late Orders' format string changed from `0` to `#,0`.
   - A display column, Delivery Review Label, was added, so the review-timing chart's category labels fit. It maps each Delivery Review Group value to a shorter name, one to one.
   - Two empty placeholder measures from the original training file, `Measure` and `Measure 2`, were removed. Nothing referred to them.
-- Every DAX expression that was validated is unchanged.
+  - Late Orders, Low-Rated Orders and On-Time Delivery Rate now return 0 instead of blank for zero events, and three hidden helper measures were added. See section 5.
+- Apart from those three zero-event changes, every DAX expression that was validated is unchanged.
+- **The 49 checks were re-run after the zero-event changes: 49 passed, 0 failed.** The changes return 0 instead of blank only where the base population exists, so none of the 49 targets was affected. See section 5.
 
 ## 4. Report (Files, Visual)
 
@@ -113,7 +115,7 @@ The query is reproduced in the appendix.
 | Pages | 2: Overview and Delivery & Customer Experience, both 1920 × 1080 | Files |
 | Visuals | 33 on Overview (1 hidden), 18 on page 2; 51 unique IDs | Files |
 | JSON | All report files parse | Files |
-| Field and measure references on page 2 | 15, all present in the model | Files |
+| Field and measure references on page 2 | 18, including the three helper measures, all present in the model | Files |
 | Page-2 layout | Every visual inside the canvas, no overlaps | Files |
 | Overview page | 33 of 34 files identical to the original project; see the note below | Files |
 | KPI values on both pages | As expected (below) | Visual |
@@ -141,14 +143,64 @@ The query is reproduced in the appendix.
 - **C4:** two category labels were cut short. The chart now uses the Delivery Review Label display column.
 - **C5:** two data labels overlapped. The chart now uses horizontal bars.
 
-Neither change affects any value. Adding the display column needed a refresh of the review table from the local database in Power BI Desktop; the database itself wasn't changed. The screenshot in `screenshots/06_delivery_customer_experience.png` shows the final page.
+Neither change affects any value. Adding the display column needed a refresh of the review table from the local database in Power BI Desktop; the database itself wasn't changed. The screenshot in `screenshots/06_delivery_customer_experience.png` shows the page with nothing selected. It was captured before the update in section 5, so the Notes in it don't yet include the final sentence about sample-size shading. With nothing selected, every bar is standard blue, so nothing else differs.
 
-## 5. Research integrity
+## 5. Interactions and sample-size update (Files, Visual, Runtime)
+
+**Why it was needed.** Manual testing of the Delivery page found three problems. None was a calculation error: card values for a selected month matched the research, for example March 2018 at 1,328 late orders, 18.96%, and medians of 22 and 13 days.
+- **Cross-highlighting on rate charts.** With no interaction settings, clicking a month cross-highlighted the state and review charts and collapsed the line chart. On a rate chart, a part-shaded bar looks like a share of the bar, but it's a different rate drawn over the full-period one.
+- **Sample-size rules evaluated inside each selection.** The 100- and 1,000-order chart filters were recalculated for every selection:
+  - within any single month, only SP had 1,000+ delivered orders (plus RJ in November 2017);
+  - 15 states never reach 100 orders in a month.
+
+  So filtering by month or state left charts with one bar, or empty.
+- **Zero events shown as `--`.** A count of nothing is blank in DAX. For example, AC customers in March 2018 had 2 delivered orders and none late.
+
+**What changed** (8 PBIP files; layout unchanged):
+
+| Area | Change |
+|---|---|
+| Delivery-page interactions | 12 settings: the month, line and state charts filter each other, the cards and both review charts. The line chart highlights the month chart. Review charts still affect nothing. See [data_model.md](data_model.md#filtering-behaviour) |
+| Overview interactions | 4 settings: the two monthly charts don't filter each other, and clicking a month filters the Top 10 states chart |
+| Month and line charts | Filter "Delivered Orders With Date ≥ 100" replaced by Month Coverage Orders ≥ 100 (a national rule) and Delivered Orders With Date ≥ 1 |
+| State chart | Filter "≥ 1,000" replaced by Top 12 states by State Full-Period Orders and Delivered Orders With Date ≥ 1 |
+| Sample-size warning | Month and state bars coloured by Sample Bar Colour: grey under 30 orders, light blue 30–99, standard blue 100+. Delivered-order count added to the line chart's tooltip |
+| Measures | Zero-event handling in Late Orders, Low-Rated Orders and On-Time Delivery Rate; three hidden helper measures. See [dax_measures.md](dax_measures.md) |
+| Notes text | One sentence explaining the shading, the 12 states and month coverage |
+
+The thresholds keep their values, 100 and 1,000. They now decide only which rows can appear, and they no longer change with a selection. Reliability is shown by shading, not by removing data.
+
+**Checks:**
+
+| Check | Result | Source |
+|---|---|---|
+| Files changed against the previous release | Exactly the 8 approved files | Files |
+| Pages and visuals | Both pages, 51 visuals; positions, sizes and all other settings unchanged | Files |
+| Interactions | Previous settings plus exactly the approved ones; all IDs valid, no duplicates | Files |
+| Measures | 3 changed (the zero-event fixes) and 3 added (hidden helpers); none removed | Files |
+| Relationships | File byte-identical; 7 relationships | Files |
+| References | All 25 field and measure references in visuals and visual filters, on both pages, exist in the model | Files |
+| Colour rule | Uses the per-data-point selector defined in the published PBIR formatting schema | Files |
+| Notes length | Estimated at 3 lines in the 74-pixel box from Segoe UI font metrics | Files |
+| Manual test checklist | Reported by the author as working as expected | Visual |
+| DAX checks 1–85 (appendix), run by the author in DAX query view after the update | **85 passed, 0 failed:** original checks 49 of 49, zero-event checks 18 of 18, helper-measure checks 18 of 18 | Runtime |
+
+The manual test checklist covered:
+- the baseline values;
+- March 2018: the same 12 states, with CE first at 50.54% on 93 orders, shaded light blue;
+- clicking the line chart; clicking RJ and CE;
+- the AL, AC and RR slicer selections (RR shows 17 of 21 months, with the other 4 absent, not 0%);
+- a slicer combined with a month click, and AC with March 2018 showing 0 late orders;
+- review-chart clicks, clearing selections, the Research Findings panel, the Notes text and the Overview page.
+
+Expected values came from the order export.
+
+## 6. Research integrity
 
 The second page keeps two kinds of result apart:
 
-- **Charts and cards** are descriptive, unadjusted measures. They respond to slicers.
-- **The Research Findings panel** is fixed text from the analysis in [hypothesis_log.md](hypothesis_log.md). It doesn't respond to slicers:
+- **Charts and cards** are descriptive, unadjusted measures. They respond to slicers and chart selections.
+- **The Research Findings panel** is fixed text from the analysis in [hypothesis_log.md](hypothesis_log.md). It doesn't respond to slicers or chart selections:
   - A1 (RJ against SP customers, +7.46 points) and A2 (late against on-time orders, +51.04 points) are prespecified, adjusted estimates labelled **Supported (provisional)**.
   - B6 (multi-item orders, +12.67 points) and B7 (67.54% of low ratings on on-time orders) are **exploratory**.
 
@@ -235,3 +287,94 @@ Sources for the targets:
 - RJ and SP figures: the state view in [hypothesis_log.md](hypothesis_log.md) and audit item L2.
 - November 2017 figures: the log's B1 and promise tables.
 - Derived targets, calculated from documented counts: 0.0677, 0.0298 overall, and 2,849.
+
+### Checks 50–67: zero events
+
+Added with the zero-event changes. Result: 18 passed, 0 failed. A result of −1 means the measure returned blank, so blank and 0 can be told apart.
+
+<details>
+<summary>Show the query</summary>
+
+```dax
+EVALUATE
+VAR Mar2018 = FILTER ( ALL ( 'public bi_orders'[order_purchase_timestamp] ),
+        'public bi_orders'[order_purchase_timestamp] >= DATE ( 2018, 3, 1 ) && 'public bi_orders'[order_purchase_timestamp] < DATE ( 2018, 4, 1 ) )
+VAR Sep2016 = FILTER ( ALL ( 'public bi_orders'[order_purchase_timestamp] ),
+        'public bi_orders'[order_purchase_timestamp] >= DATE ( 2016, 9, 1 ) && 'public bi_orders'[order_purchase_timestamp] < DATE ( 2016, 10, 1 ) )
+VAR Sep2018 = FILTER ( ALL ( 'public bi_orders'[order_purchase_timestamp] ),
+        'public bi_orders'[order_purchase_timestamp] >= DATE ( 2018, 9, 1 ) && 'public bi_orders'[order_purchase_timestamp] < DATE ( 2018, 10, 1 ) )
+VAR Checks = UNION (
+    ROW ( "check", "50 AC Mar 2018 delivered with date", "actual", VAR x = CALCULATE ( [Delivered Orders With Date], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 2, "tol", 0 ),
+    ROW ( "check", "51 AC Mar 2018 late orders is 0", "actual", VAR x = CALCULATE ( [Late Orders], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 0, "tol", 0 ),
+    ROW ( "check", "52 AC Mar 2018 late rate is 0", "actual", VAR x = CALCULATE ( [Late Delivery Rate], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 0, "tol", 0 ),
+    ROW ( "check", "53 AC Mar 2018 on-time rate", "actual", VAR x = CALCULATE ( [On-Time Delivery Rate], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "54 AC Mar 2018 reviewed orders", "actual", VAR x = CALCULATE ( [Reviewed Orders], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 2, "tol", 0 ),
+    ROW ( "check", "55 AC Mar 2018 low-rated is 0", "actual", VAR x = CALCULATE ( [Low-Rated Orders], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 0, "tol", 0 ),
+    ROW ( "check", "56 AC Mar 2018 low-rating share is 0", "actual", VAR x = CALCULATE ( [Low-Rating Share], 'public bi_orders'[customer_state] = "AC", Mar2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 0, "tol", 0 ),
+    ROW ( "check", "57 SP Sep 2016 late orders", "actual", VAR x = CALCULATE ( [Late Orders], 'public bi_orders'[customer_state] = "SP", Sep2016 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "58 SP Sep 2016 on-time rate is 0", "actual", VAR x = CALCULATE ( [On-Time Delivery Rate], 'public bi_orders'[customer_state] = "SP", Sep2016 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", 0, "tol", 0 ),
+    ROW ( "check", "59 SP Sep 2018 late orders blank", "actual", VAR x = CALCULATE ( [Late Orders], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "60 SP Sep 2018 late rate blank", "actual", VAR x = CALCULATE ( [Late Delivery Rate], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "61 SP Sep 2018 on-time rate blank", "actual", VAR x = CALCULATE ( [On-Time Delivery Rate], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "62 SP Sep 2018 low-rated blank", "actual", VAR x = CALCULATE ( [Low-Rated Orders], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "63 SP Sep 2018 low-rating share blank", "actual", VAR x = CALCULATE ( [Low-Rating Share], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "64 SP Sep 2018 median actual blank", "actual", VAR x = CALCULATE ( [Median Actual Days], 'public bi_orders'[customer_state] = "SP", Sep2018 ) RETURN IF ( ISBLANK ( x ), -1, x ), "expected", -1, "tol", 0 ),
+    ROW ( "check", "65 states with a late-orders value", "actual", COUNTROWS ( FILTER ( VALUES ( 'public bi_orders'[customer_state] ), NOT ISBLANK ( [Late Orders] ) ) ) + 0, "expected", 27, "tol", 0 ),
+    ROW ( "check", "66 Mar 2018 late orders blank only without orders", "actual", CALCULATE ( COUNTROWS ( FILTER ( VALUES ( 'public bi_orders'[customer_state] ), ISBLANK ( [Late Orders] ) <> ISBLANK ( [Delivered Orders With Date] ) ) ), Mar2018 ) + 0, "expected", 0, "tol", 0 ),
+    ROW ( "check", "67 review labels low-rated blank only without reviews", "actual", COUNTROWS ( FILTER ( VALUES ( 'public bi_order_reviews'[Delivery Review Label] ), ISBLANK ( [Low-Rated Orders] ) <> ISBLANK ( [Reviewed Orders] ) ) ) + 0, "expected", 0, "tol", 0 )
+)
+RETURN
+    ADDCOLUMNS ( Checks, "result", IF ( ABS ( [actual] - [expected] ) <= [tol], "PASS", "FAIL" ) )
+ORDER BY [check]
+```
+
+</details>
+
+### Checks 68–85: helper measures
+
+Added with the interaction and sample-size update. Result: 18 passed, 0 failed. Text and blank results are converted to 1 for a match and 0 otherwise. `LocalDateTable_3e939c76…` is the automatic date table for `order_purchase_timestamp`; a month click on a chart filters it.
+
+<details>
+<summary>Show the query</summary>
+
+```dax
+EVALUATE
+VAR Mar2018 = FILTER ( ALL ( 'public bi_orders'[order_purchase_timestamp] ),
+        'public bi_orders'[order_purchase_timestamp] >= DATE ( 2018, 3, 1 ) && 'public bi_orders'[order_purchase_timestamp] < DATE ( 2018, 4, 1 ) )
+VAR Sep2018 = FILTER ( ALL ( 'public bi_orders'[order_purchase_timestamp] ),
+        'public bi_orders'[order_purchase_timestamp] >= DATE ( 2018, 9, 1 ) && 'public bi_orders'[order_purchase_timestamp] < DATE ( 2018, 10, 1 ) )
+VAR Core12 = "BA,CE,DF,ES,GO,MG,PE,PR,RJ,RS,SC,SP"
+VAR Checks = UNION (
+    ROW ( "check", "68 CE full-period orders", "actual", CALCULATE ( [State Full-Period Orders], 'public bi_orders'[customer_state] = "CE" ) + 0, "expected", 1279, "tol", 0 ),
+    ROW ( "check", "69 CE full-period ignores purchase-date filter", "actual", CALCULATE ( [State Full-Period Orders], 'public bi_orders'[customer_state] = "CE", Mar2018 ) + 0, "expected", 1279, "tol", 0 ),
+    ROW ( "check", "70 CE full-period ignores date-table filter", "actual", CALCULATE ( [State Full-Period Orders], 'public bi_orders'[customer_state] = "CE",
+        'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114'[Year] = 2018, 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114'[MonthNo] = 3 ) + 0, "expected", 1279, "tol", 0 ),
+    ROW ( "check", "71 SP full-period orders", "actual", CALCULATE ( [State Full-Period Orders], 'public bi_orders'[customer_state] = "SP" ) + 0, "expected", 40494, "tol", 0 ),
+    ROW ( "check", "72 month coverage, AL + Mar 2018 (date table)", "actual", CALCULATE ( [Month Coverage Orders], 'public bi_orders'[customer_state] = "AL",
+        'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114'[Year] = 2018, 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114'[MonthNo] = 3 ) + 0, "expected", 7003, "tol", 0 ),
+    ROW ( "check", "73 month coverage, Mar 2018, no state", "actual", CALCULATE ( [Month Coverage Orders], Mar2018 ) + 0, "expected", 7003, "tol", 0 ),
+    ROW ( "check", "74 Top 12 with no filter", "actual", IF ( CONCATENATEX ( TOPN ( 12, VALUES ( 'public bi_orders'[customer_state] ), [State Full-Period Orders] ), 'public bi_orders'[customer_state], ",", 'public bi_orders'[customer_state], ASC ) = Core12, 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "75 Top 12 under Mar 2018 (same 12)", "actual", IF ( CALCULATE ( CONCATENATEX ( TOPN ( 12, VALUES ( 'public bi_orders'[customer_state] ), [State Full-Period Orders] ), 'public bi_orders'[customer_state], ",", 'public bi_orders'[customer_state], ASC ), Mar2018 ) = Core12, 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "76 Top 12 when AL is selected", "actual", IF ( CALCULATE ( CONCATENATEX ( TOPN ( 12, VALUES ( 'public bi_orders'[customer_state] ), [State Full-Period Orders] ), 'public bi_orders'[customer_state], ",", 'public bi_orders'[customer_state], ASC ), 'public bi_orders'[customer_state] = "AL" ) = "AL", 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "77 colour AC Mar 2018 (2 orders) pale grey", "actual", IF ( CALCULATE ( [Sample Bar Colour], 'public bi_orders'[customer_state] = "AC", Mar2018 ) = "#B4BDCA", 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "78 colour CE Mar 2018 (93 orders) light blue", "actual", IF ( CALCULATE ( [Sample Bar Colour], 'public bi_orders'[customer_state] = "CE", Mar2018 ) = "#8FB1E6", 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "79 colour SP Mar 2018 standard", "actual", IF ( CALCULATE ( [Sample Bar Colour], 'public bi_orders'[customer_state] = "SP", Mar2018 ) = "#2463C5", 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "80 colour SP Sep 2018 (no delivered orders) blank", "actual", IF ( ISBLANK ( CALCULATE ( [Sample Bar Colour], 'public bi_orders'[customer_state] = "SP", Sep2018 ) ), 1, 0 ), "expected", 1, "tol", 0 ),
+    ROW ( "check", "81 monthly-chart months, no state", "actual", COUNTROWS ( FILTER ( SUMMARIZE ( 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114', [Year], [MonthNo] ),
+        [Month Coverage Orders] >= 100 && [Delivered Orders With Date] >= 1 ) ) + 0, "expected", 21, "tol", 0 ),
+    ROW ( "check", "82 monthly-chart months, AL", "actual", CALCULATE ( COUNTROWS ( FILTER ( SUMMARIZE ( 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114', [Year], [MonthNo] ),
+        [Month Coverage Orders] >= 100 && [Delivered Orders With Date] >= 1 ) ), 'public bi_orders'[customer_state] = "AL" ) + 0, "expected", 21, "tol", 0 ),
+    ROW ( "check", "83 AL months under 30 orders", "actual", CALCULATE ( COUNTROWS ( FILTER ( SUMMARIZE ( 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114', [Year], [MonthNo] ),
+        [Month Coverage Orders] >= 100 && [Delivered Orders With Date] >= 1 && [Delivered Orders With Date] < 30 ) ), 'public bi_orders'[customer_state] = "AL" ) + 0, "expected", 20, "tol", 0 ),
+    ROW ( "check", "84 monthly-chart months, RR (4 months blank)", "actual", CALCULATE ( COUNTROWS ( FILTER ( SUMMARIZE ( 'LocalDateTable_3e939c76-13e6-4603-bcd3-a0a9f96e9114', [Year], [MonthNo] ),
+        [Month Coverage Orders] >= 100 && [Delivered Orders With Date] >= 1 ) ), 'public bi_orders'[customer_state] = "RR" ) + 0, "expected", 17, "tol", 0 ),
+    ROW ( "check", "85 CE Mar 2018 late rate", "actual", CALCULATE ( [Late Delivery Rate], 'public bi_orders'[customer_state] = "CE", Mar2018 ) + 0, "expected", 0.5054, "tol", 0.00005 )
+)
+RETURN
+    ADDCOLUMNS ( Checks, "result", IF ( ABS ( [actual] - [expected] ) <= [tol], "PASS", "FAIL" ) )
+ORDER BY [check]
+```
+
+</details>
+
+Sources for checks 50–85: expected values were calculated from the order export `data/processed/orders_analysis.csv`, using the same definitions as the measures.

@@ -9,14 +9,16 @@ The model has two imported tables: `public bi_orders` (one row per order, all st
 - [Overview page measures](#overview-page-measures)
 - [Delivery measures](#delivery-measures)
 - [Review measures](#review-measures)
+- [Helper measures for the charts](#helper-measures-for-the-charts)
 - [Calculated columns](#calculated-columns)
 - [Shared rules](#shared-rules)
+- [Zero events and missing data](#zero-events-and-missing-data)
 - [The on-time correction](#the-on-time-correction)
 - [Removed placeholder measures](#removed-placeholder-measures)
 
 ## Overview page measures
 
-These measures were built for the first page and are unchanged.
+These measures were built for the first page. On-Time Delivery Rate later gained the zero-event change described below; the others are unchanged.
 
 ### Total Product Sales
 
@@ -81,6 +83,8 @@ CALCULATE(
 
 Delivered on or before the estimated calendar date, over delivered orders with a delivery date. Corrected during the project; see below. Its `CALCULATE` filters replace any outside filter on `order_status` and on the two date columns, so it isn't meant to be sliced by those columns.
 
+The numerator ends in `+ 0`, so a selection where every delivered order was late shows 0.00% rather than a blank. When there are no delivered orders, the denominator is blank and `DIVIDE` still returns blank.
+
 Format string: `0.00%;-0.00%;0.00%`
 
 ```dax
@@ -90,7 +94,7 @@ DIVIDE(
         'public bi_orders'[order_status] = "delivered",
         NOT(ISBLANK('public bi_orders'[order_delivered_customer_date])),
         INT('public bi_orders'[order_delivered_customer_date]) <= INT('public bi_orders'[order_estimated_delivery_date])
-    ),
+    ) + 0,
     CALCULATE(
         COUNTROWS('public bi_orders'),
         'public bi_orders'[order_status] = "delivered",
@@ -178,16 +182,23 @@ CALCULATE (
 
 Orders delivered after the estimated calendar date. `INT()` compares calendar days, the same comparison as `::date` in SQL and `.normalize()` in Python. Format `#,0` shows thousands separators.
 
+It returns 0 when delivered orders with a date exist but none is late, and blank when there are no such orders. Late Delivery Rate therefore shows 0.00% for a selection with no late orders. Non-zero results are unchanged.
+
 Format string: `#,0`
 
 ```dax
-CALCULATE (
-    [Delivered Orders With Date],
-    KEEPFILTERS (
-        INT ( 'public bi_orders'[order_delivered_customer_date] )
-        > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+VAR DeliveredWithDate = [Delivered Orders With Date]
+RETURN
+    IF (
+        NOT ISBLANK ( DeliveredWithDate ),
+        CALCULATE (
+            [Delivered Orders With Date],
+            KEEPFILTERS (
+                INT ( 'public bi_orders'[order_delivered_customer_date] )
+                > INT ( 'public bi_orders'[order_estimated_delivery_date] )
+            )
+        ) + 0
     )
-)
 ```
 
 ### Late Delivery Rate
@@ -300,15 +311,22 @@ CALCULATE (
 
 Reviewed Orders rated 1 or 2 stars. Blank scores can't qualify, because Reviewed Orders already excludes them.
 
+It returns 0 when reviewed orders exist but none is low-rated, and blank when there are no reviewed orders. Low-Rating Share therefore shows 0.00% rather than a blank. Non-zero results are unchanged.
+
 Format string: `0`
 
 ```dax
-CALCULATE (
-    [Reviewed Orders],
-    KEEPFILTERS (
-        'public bi_order_reviews'[latest_review_score] <= 2
+VAR ReviewedOrders = [Reviewed Orders]
+RETURN
+    IF (
+        NOT ISBLANK ( ReviewedOrders ),
+        CALCULATE (
+            [Reviewed Orders],
+            KEEPFILTERS (
+                'public bi_order_reviews'[latest_review_score] <= 2
+            )
+        ) + 0
     )
-)
 ```
 
 ### Low-Rating Share
@@ -333,6 +351,52 @@ Format string: `0`
 ```dax
 COUNTROWS ( 'public bi_order_reviews' )
     - DISTINCTCOUNT ( 'public bi_order_reviews'[order_id] )
+```
+
+## Helper measures for the charts
+
+Three hidden measures in `public bi_orders` control which rows the Delivery page's charts show and how their bars are coloured. They don't change any figure, and no card displays them. [data_model.md](data_model.md#filtering-behaviour) describes how the charts use them.
+
+### State Full-Period Orders
+
+Delivered orders with a date for each state over the whole period. `ALLEXCEPT` keeps only the customer-state filter, so purchase-date slicers, month selections and the automatic date tables are ignored. The state chart's Top 12 filter ranks states by this measure. Its top 12 are exactly the states with 1,000+ delivered orders: the 12th, CE, has 1,279 and the 13th, PA, has 946.
+
+Format string: `0`
+
+```dax
+CALCULATE (
+    [Delivered Orders With Date],
+    ALLEXCEPT ( 'public bi_orders', 'public bi_orders'[customer_state] )
+)
+```
+
+### Month Coverage Orders
+
+Delivered orders with a date in each month, across all customer states. Removing the state filter means a state selection doesn't change which months appear. The month and line charts show months where this is at least 100, which leaves out only September and December 2016, with 1 order each.
+
+Format string: `0`
+
+```dax
+CALCULATE (
+    [Delivered Orders With Date],
+    REMOVEFILTERS ( 'public bi_orders'[customer_state] )
+)
+```
+
+### Sample Bar Colour
+
+The bar colour on the month and state charts, set from the delivered orders behind each bar in the current selection: pale grey below 30 (a very small sample), light blue from 30 to 99 (a small sample), and the standard blue from 100. It's blank when there are no delivered orders, so it can't create a bar.
+
+```dax
+VAR DeliveredWithDate = [Delivered Orders With Date]
+RETURN
+    SWITCH (
+        TRUE (),
+        ISBLANK ( DeliveredWithDate ), BLANK (),
+        DeliveredWithDate < 30, "#B4BDCA",
+        DeliveredWithDate < 100, "#8FB1E6",
+        "#2463C5"
+    )
 ```
 
 ## Calculated columns
@@ -415,6 +479,19 @@ SWITCH (
 | Missing reviews are excluded, not counted as low | All review measures |
 
 These are descriptive, unadjusted figures. The adjusted research estimates shown in the dashboard's Research Findings panel are fixed text from [hypothesis_log.md](hypothesis_log.md); no measure recalculates them.
+
+## Zero events and missing data
+
+A count of rows that match nothing returns blank in DAX, not 0. Before this change, a selection with delivered orders but no late ones showed Late Orders and Late Delivery Rate as `--`, next to an on-time rate of 100.00%. Three measures now separate the two cases:
+
+| Situation | Example | Shown |
+|---|---|---|
+| Orders exist, none late | AC customers, March 2018: 2 delivered, 0 late | Late Orders 0, Late Delivery Rate 0.00% |
+| Reviews exist, none low-rated | AC customers, March 2018: 2 reviewed, 0 low-rated | Low-Rated Orders 0, Low-Rating Share 0.00% |
+| Orders exist, all late | SP customers, September 2016: 1 delivered, late | On-Time Delivery Rate 0.00% |
+| No delivered orders | SP customers, September 2018 | Blank (`--` on cards; no bar on charts) |
+
+Each change applies only when the measure's base population exists, so blank still means there's no data. Every non-zero result is unchanged.
 
 ## The on-time correction
 

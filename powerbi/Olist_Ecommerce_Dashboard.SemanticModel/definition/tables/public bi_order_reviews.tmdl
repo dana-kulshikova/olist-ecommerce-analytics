@@ -26,12 +26,17 @@ table 'public bi_order_reviews'
 
 	measure 'Low-Rated Orders' = ```
 			
-			CALCULATE (
-			    [Reviewed Orders],
-			    KEEPFILTERS (
-			        'public bi_order_reviews'[latest_review_score] <= 2
+			VAR ReviewedOrders = [Reviewed Orders]
+			RETURN
+			    IF (
+			        NOT ISBLANK ( ReviewedOrders ),
+			        CALCULATE (
+			            [Reviewed Orders],
+			            KEEPFILTERS (
+			                'public bi_order_reviews'[latest_review_score] <= 2
+			            )
+			        ) + 0
 			    )
-			)
 			
 			```
 		formatString: 0
